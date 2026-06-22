@@ -12,7 +12,7 @@ Main app for the RokKru tutoring platform. **Team tasks:** see [`docs/TEAM_TASKS
 | Components | Radix primitives + custom (`components/ui`) |
 | Icons | lucide-react |
 | Charts | recharts |
-| HTTP | `fetch` via `services/core/api.js` (cookies + JWT) |
+| HTTP | Axios via `services/core/api.js` (cookies + JWT) |
 | State | React hooks + `AuthContext` |
 | i18n | `lib/localeEn.js`, `lib/localeKm.js` |
 

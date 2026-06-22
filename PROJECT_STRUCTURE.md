@@ -3,6 +3,17 @@
 > **អានរហ័ស:** `frontend/` = app រួម · `tasks/` = task របស់ member · `backend_rokkru/` = API + DB  
 > **Workflow:** [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) · **Tasks:** [`frontend/docs/TEAM_TASKS.md`](frontend/docs/TEAM_TASKS.md)
 
+**មាតិកា**
+
+| § | រូបភាព |
+|---|--------|
+| [1](#1-workspace--folder-នីមួយធ្វើអី) | Workspace folders |
+| [2](#2-big-picture--ពី-browser-ទៅ-database) | Browser → DB |
+| [3.0](#30-តួនាទីនីមួយៗ--frontend-src) | **តួនាទីរួម Frontend** |
+| [3.2.1](#321-page--hook--service--lib--តួនាទី--flow) | Page → Hook → Service → Lib |
+| [4.0](#40-តួនាទីនីមួយៗ--backend) | **តួនាទី Backend** |
+| [6](#6-team--folder-ownership-tasks) | Team ownership |
+
 ---
 
 ## 1. Workspace — folder នីមួយធ្វើអី?
@@ -63,7 +74,7 @@ flowchart LR
   DB[("PostgreSQL")]
 
   UI --> P
-  S -->|"fetch /api/v1/..."| V
+  S -->|"axios /api/v1/..."| V
   V --> RT
   MD --> DB
 ```
@@ -79,6 +90,164 @@ Express  →  routes/v1/students.js  →  controller  →  PostgreSQL
 ---
 
 ## 3. Frontend — រចនាសម្ព័ន្ធ & flow
+
+### 3.0 តួនាទីនីមួយៗ — Frontend `src/`
+
+> **ចងចាំមួយបន្ទាត់:** User ចូល **page** → (optional **hook**) → **service** (axios) → **lib** (map) → **backend**
+
+#### រូបភាពតួនាទី
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  ENTRY          main.jsx → App.jsx (routes)                 │
+├─────────────────────────────────────────────────────────────┤
+│  VIEW           pages/ + components/     ← user ឃើញ          │
+├─────────────────────────────────────────────────────────────┤
+│  LOGIC          hooks/ + contexts/       ← state, effects     │
+├─────────────────────────────────────────────────────────────┤
+│  API            services/                ← axios only       │
+│                   └→ lib/ (map, validate)  ← service ហៅ    │
+├─────────────────────────────────────────────────────────────┤
+│  CONFIG         constants/ · utils/      ← env, helpers     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### តារាងតួនាទី — រួម
+
+| Folder | តួនាទី (ធ្វើអី?) | មិនធ្វើអី? | ហៅពី | Owner |
+|--------|------------------|-----------|-------|-------|
+| **`App.jsx`** | URL → page, layout, `ProtectedRoute` | business logic, API | Browser | Bunhieng |
+| **`pages/`** | Screen ពេញ (student home, login…) | axios, map API fields | `App.jsx` | តាម role |
+| **`components/`** | UI ដំណើរការឡើងវិញ (button, card, layout) | API calls | `pages/`, components | Bunhieng |
+| **`hooks/`** | `useState`, load data, form logic | render UI, axios ផ្ទាល់ | `pages/` | តាម role |
+| **`contexts/`** | Global state (auth-adjacent, CMS) | HTTP | `App.jsx`, pages | តាម feature |
+| **`services/`** | **axios** → `/api/v1` | UI, rename DB fields | hooks, pages, AuthContext | តាម domain |
+| **`lib/`** | Map UI↔API, validate, auth, i18n | HTTP | **services/** (ឬ pages) | តាម mapper |
+| **`constants/`** | env, route names, defaults | API calls | services, pages | Bunhieng |
+| **`utils/`** | Pure helpers (filter, export, phone) | HTTP, React state | pages, hooks, lib | តាម feature |
+
+---
+
+#### `App.jsx` + `main.jsx` — ចូល app & routes
+
+| | |
+|---|---|
+| **តួ** | Bootstrap React · កំណត់ URL → component |
+| **ធ្វើ** | `BrowserRouter`, wrap `AuthProvider`, define `/student/*`, `/mentor/*` |
+| **មិនធ្វើ** | load API data, form validation |
+| **ឧទាហរណ៍** | `App.jsx`, `main.jsx` |
+
+---
+
+#### `pages/` — Screen (អ្វី user ឃើញ)
+
+| | |
+|---|---|
+| **តួ** | **View** — រូបភាពពេញមួយទំព័រ |
+| **ធ្វើ** | Compose `components/`, call `hooks/`, handle click/submit |
+| **មិនធ្វើ** | `axios` / `apiRequest` ផ្ទាល់ · map `firstname`→`firstName` |
+| **ហៅ** | `hooks/`, `services/` (ខ្លះ page), `lib/` (display profile) |
+| **ឧទាហរណ៍** | `pages/student/Community.jsx`, `pages/auth/Login.jsx` |
+| **Owner** | Sorint (auth), Sophy (student), Sokhun (mentor), Ratanak (community), Somnang (admin) |
+
+---
+
+#### `components/` — UI blocks
+
+| Subfolder | តួ | ឧទាហរណ៍ |
+|-----------|-----|----------|
+| **`ui/`** | Primitives — button, input, modal | `Button.jsx`, `Avatar.jsx` |
+| **`layout/`** | Shell — navbar, sidebar, guard | `MainLayout`, `ProtectedRoute` |
+| **`common/`** | Feature blocks ប្រើរួម | `MentorCard`, `CreatePostModal` |
+| **`backgrounds/`** | Page ambient / mesh | `PageAmbient` |
+| **`mentor/`** | Mentor-only widgets | `MentorPostedSessionsPanel` |
+
+| | |
+|---|---|
+| **មិនធ្វើ** | API calls · heavy business rules |
+| **Owner** | Bunhieng (shared) · feature owner សម្រាប់ role widgets |
+
+---
+
+#### `hooks/` — Logic & state
+
+| | |
+|---|---|
+| **តួ** | **Logic layer** — data loading, form state, side effects |
+| **ធ្វើ** | `useState`, `useEffect`, return `{ data, loading, error }` |
+| **មិនធ្វើ** | Render JSX (តែងតែទុកឲ្យ page) · map API fields |
+| **ហៅ** | `services/` |
+| **ឧទាហរណ៍** | `useCommunityFeed.js`, `useMentorDashboard.js`, `AuthContext` |
+| **ចំណាំ** | **មិនមានគ្រប់ page** — page តូចអាច `useState` ផ្ទាល់ |
+
+---
+
+#### `services/` — API layer (axios)
+
+| | |
+|---|---|
+| **តួ** | **ទូរទៅ backend** — តែ HTTP |
+| **ធ្វើ** | `apiRequest(ENDPOINTS...)`, return JSON / UI-ready data |
+| **មិនធ្វើ** | Render UI · duplicate field mapping (ប្រើ `lib/*ApiMap`) |
+| **ហៅ** | `services/core/api.js`, `endpoints.js`, `lib/*ApiMap.js` |
+| **ឧទាហរណ៍** | `communityService.js`, `authService.js`, `mentorService.js` |
+
+**`services/core/`** (Bunhieng)
+
+| File | តួ |
+|------|-----|
+| `api.js` | `apiRequest()` — **axios** + JWT + cookies |
+| `endpoints.js` | Path constants — **must match backend** |
+| `apiErrors.js` | `ApiError` class |
+
+---
+
+#### `lib/` — Map · Validate · Session · i18n
+
+| | |
+|---|---|
+| **តួ** | **ជំនួយ service & page** — មិនមែន HTTP |
+| **ចំណាំសំខាន់** | **`lib` មិនដើរមុន `service`** — **service ហៅ lib** |
+
+| Subfolder / file | តួ | ឧទាហរណ៍ |
+|------------------|-----|----------|
+| **`*ApiMap.js`** | Backend field ↔ UI field | `firstName` ↔ `firstname` |
+| **`validation/`** | Form rules មុន submit | phone, password, profile complete |
+| **`authStorage.js`** | Token, user, cookie `token=` | login session |
+| **`studentProfile.js`** | Build profile object for UI | `resolveStudentProfile(user)` |
+| **`localeEn.js` / `localeKm.js`** | Translation strings | `t('auth.login')` |
+| **`LanguageProvider.jsx`** | i18n context | wrap app |
+
+| Owner | Files |
+|-------|-------|
+| Sophy | `studentApiMap.js`, `validation/student/` |
+| Sokhun | `mentorApiMap.js`, `validation/mentor/` |
+| Ratanak | `communityApiMap.js` |
+| Bunhieng | `authStorage.js`, i18n, shared validation |
+
+---
+
+#### `constants/` · `utils/` · `contexts/`
+
+| Folder | តួ | ឧទាហរណ៍ |
+|--------|-----|----------|
+| **`constants/`** | Static config — env, routes, filter labels | `env.js`, `studentRoutes.js` |
+| **`utils/`** | Pure functions — no React, no HTTP | `filterMentors.js`, `phoneInput.js` |
+| **`contexts/`** | React context spanning many pages | `PlatformContentContext` |
+
+**`lib/` vs `utils/`:** `lib/` = domain (student, mentor, auth) · `utils/` = generic helpers (often call `lib/validation`)
+
+---
+
+#### ច្បាប់មាស (សង្ខេប)
+
+| # | ច្បាប់ |
+|---|--------|
+| 1 | **page** ចាប់ផ្តើម — user បើក screen |
+| 2 | **axios** តែក្នុង `services/` |
+| 3 | **map API field** តែក្នុង `lib/*ApiMap.js` |
+| 4 | **service → lib** (មិនមែន lib → service) |
+| 5 | **components** គ្មាន API |
 
 ### 3.1 Layer diagram — ហៅពីណាទៅណា
 
@@ -97,7 +266,7 @@ flowchart TB
     App --> Auth --> Lang --> Ctx
   end
 
-  subgraph UI["UI layer — មិន fetch ផ្ទាល់"]
+  subgraph UI["UI layer — មិន axios ផ្ទាល់"]
     Pages["pages/ — screens"]
     Comp["components/ — ui, layout, common"]
     Pages --> Comp
@@ -129,10 +298,12 @@ flowchart TB
   Hooks --> Svc
   Auth --> AuthSt
   Auth --> Svc
-  API -->|"fetch + JWT cookie"| Net["Backend /api/v1"]
+  API -->|"axios + JWT cookie"| Net["Backend /api/v1"]
 ```
 
 ### 3.2 ច្បាប់មាស (frontend)
+
+> ពេញ: [§3.0 តួនាទីនីមួយៗ](#30-តួនាទីនីមួយៗ--frontend-src)
 
 | Layer | Folder | ធ្វើអី? | ហៅពីណា? | ទៅណា? |
 |-------|--------|---------|---------|-------|
@@ -140,13 +311,118 @@ flowchart TB
 | **Page** | `pages/` | Screen UI, compose components | `App.jsx` routes | `hooks/`, `components/` |
 | **Hook** | `hooks/` | Load data, form state | `pages/` | `services/` |
 | **Service** | `services/` | HTTP calls only | `hooks/`, `AuthContext` | `apiRequest()` → backend |
-| **Mapper** | `lib/*ApiMap.js` | Rename backend fields for UI | `services/` | — |
+| **Mapper** | `lib/*ApiMap.js` | Rename backend fields for UI | `services/` (called inside) | — |
+| **Lib (other)** | `lib/` | validate, authStorage, i18n, profile | `services/`, `pages/` | — |
 | **Component** | `components/` | Reusable UI blocks | `pages/`, other components | — |
 | **Core** | `services/core/` | `endpoints.js`, `api.js` | All services | Backend |
 
-> **ហាម:** `pages/` មិន `fetch()` ផ្ទាល់ — តែងតែហៅ `services/`
+> **ហាម:** `pages/` មិន `axios` ផ្ទាល់ — តែងតែហៅ `services/` (`apiRequest`)
 
-### 3.2.1 MVC ឬអត់? — Frontend vs Backend pattern
+### 3.2.1 Page → Hook → Service → Lib — តួនាទី & flow
+
+**ចាប់ផ្តើមពី user = `page`** (មិនមែន `lib`)។  
+**`lib` មិនដើរមុន `service`** — **`service` ហៅ `lib`** នៅពេលត្រូវ map / validate data។
+
+#### 4 តួ — ធ្វើអី?
+
+| តួ | Folder | ធ្វើអី? |
+|----|--------|---------|
+| **Page** | `pages/` | UI ដែល user ឃើញ |
+| **Hook** | `hooks/` | state + load data (`loading`, `posts[]`) — **មិនមានគ្រប់ page** |
+| **Service** | `services/` | axios → API (`apiRequest`) |
+| **Lib** | `lib/` | បក field UI ↔ API, validate form, auth session, i18n |
+
+#### Service vs Lib
+
+| | `services/` | `lib/` |
+|---|-------------|--------|
+| **តួ** | ទូរទៅ backend | ឧបករណ៍ជំនួយ (mapper, validate) |
+| **ចាប់ផ្តើម** | page/hook ហៅ service | **service ហៅ lib** (ឬ page ហៅ lib ផ្ទាល់) |
+| **HTTP** | ✅ axios | ❌ គ្មាន |
+
+**Service ហៅ lib 2 ពេល:**
+
+1. **មុនផ្ញើ API** — `studentProfileToApiPayload()` (UI → backend body)
+2. **បន្ទាប់ទទួល API** — `communityPostRowToUi()` (backend row → UI object)
+
+#### Flow ធម្មតា (មាន Hook) — Community
+
+```mermaid
+flowchart TB
+  U["User"]
+  P["page — Community.jsx"]
+  H["hook — useCommunityFeed"]
+  S["service — communityService"]
+  L["lib — communityApiMap"]
+  API["backend API"]
+
+  U --> P
+  P --> H
+  H --> S
+  S --> L
+  S --> API
+  API --> S
+  S --> H
+  H --> P
+```
+
+```
+User → page → hook → service → lib (map) → axios → API
+                                              ↓
+                                    data ត្រឡប់ → hook → page render
+```
+
+#### Flow មួយទៀត (គ្មាន Hook ផ្ទាល់) — Edit Profile
+
+```
+page/StudentEditProfile.jsx
+  ├→ lib/studentProfile.js           ← បង្ហាញ form (មិនទាន់ API)
+  └→ service/studentProfileService   ← save / load API
+         └→ lib/studentApiMap.js     ← map ក្នុង service
+         └→ axios PUT /v1/students/me
+```
+
+#### រូបភាពរួម
+
+```mermaid
+flowchart TB
+  P["PAGE — UI"]
+  H["HOOK — state optional"]
+  S["SERVICE — axios"]
+  L["LIB — map / validate / auth"]
+  API["BACKEND"]
+
+  P --> H
+  P --> L
+  P --> S
+  H --> S
+  S --> L
+  S --> API
+  API --> S
+  S --> H
+  S --> P
+  H --> P
+```
+
+#### គោលបំណង `lib/` — ហេតុផលប្រើ
+
+| មូលហេតុ | ឧទាហរណ៍ |
+|---------|----------|
+| Backend field ≠ UI field | `firstName` ↔ `firstname` |
+| Service ស្អាត | HTTP តែក្នុង `services/` |
+| Validation កន្លែងតែមួយ | `lib/validation/` |
+| Auth session | `lib/authStorage.js` |
+| Team ownership | `studentApiMap` (Sophy), `mentorApiMap` (Sokhun) |
+
+#### កុំច្រលំ
+
+| ❌ មិនត្រឹម | ✅ ត្រឹម |
+|-----------|--------|
+| `lib` ដើរមុន `page` | **page** ចាប់ផ្តើម (user បើក screen) |
+| `lib → service` (រហូត) | **`service → lib`** (service ហៅ lib) |
+| `lib` = `service` | service = HTTP · lib = map/validate |
+
+### 3.2.2 MVC ឬអត់? — Frontend vs Backend pattern
 
 **ចម្លើយខ្លី:** Frontend **មិន** follow MVC បែបចាស់ — ប្រើ **Layered React** (View + Hooks + Services)។  
 **Model** ពិតស្ថិតនៅ **backend** (`models/` + PostgreSQL) តែមួយ។
@@ -322,7 +598,11 @@ src/
 │   ├── platform/        # search, filters, stripe, notifications
 │   └── sessions/        # wraps mentor posts as schedule slots
 │
-├── lib/                 # Mappers + i18n + authStorage
+├── lib/                 # Map API↔UI, validation, authStorage, i18n
+│   ├── *ApiMap.js       # studentApiMap, mentorApiMap, communityApiMap
+│   ├── authStorage.js   # token, cookie, session
+│   ├── validation/      # student, mentor, shared rules
+│   └── localeEn.js / localeKm.js
 ├── constants/           # env.js, routes, filter defaults
 ├── utils/               # Pure helpers
 ├── contexts/            # PlatformContent, MentorQuickView
@@ -383,6 +663,79 @@ flowchart LR
 ---
 
 ## 4. Backend — រចនាសម្ព័ន្ធ & flow
+
+### 4.0 តួនាទីនីមួយៗ — Backend
+
+> **Pattern:** **MVC-style** — `routes` → `middleware` → `controllers` → `models` → PostgreSQL
+
+#### រូបភាពតួនាទី
+
+```text
+HTTP /api/v1/...
+    ↓
+app.js          ← entry, CORS, cookies
+    ↓
+routes/v1/      ← URL path → router
+    ↓
+middleware/     ← JWT verify, role check (student|mentor|admin)
+    ↓
+controllers/    ← business logic, validate input
+    ↓
+models/         ← Sequelize → PostgreSQL
+    ↓
+JSON response
+```
+
+#### តារាងតួនាទី — រួម
+
+| Folder / file | តួនាទី | ធ្វើអី? | មិនធ្វើអី? |
+|---------------|--------|---------|-----------|
+| **`app.js`** | Server entry | Mount `/api/v1`, CORS, DB sync, `/health` | Business per feature |
+| **`routes/v1/`** | **Router** | Map URL → controller function | SQL queries |
+| **`middleware/auth/`** | **Guard** | Verify JWT, check role (`authorize`) | Business rules |
+| **`controllers/`** | **Controller** | Request → logic → call model → JSON | Define URL paths |
+| **`models/`** | **Model** | Sequelize schema, associations, queries | HTTP response format |
+| **`config/`** | Setup | DB connection, Swagger | — |
+| **`utils/`** | Helpers | Email, Stripe, mentor query helpers | Route definitions |
+
+#### `routes/v1/` — URL mapping
+
+| Router file | Base path | អ្វីដែល handle |
+|-------------|-----------|----------------|
+| `auth/auth.js` | `/v1/auth/*` | login, register, OTP, password |
+| `mentor/mentors.js` | `/v1/mentors/*` | list, posts, portfolio, skills, ratings |
+| `students.js` | `/v1/students/*` | profile, **community** posts |
+| `Users/UsersRoutes.js` | `/v1/users/me` | shared profile + avatar |
+| `admin/*` | `/v1/admin/*` | dashboard, notifications, settings |
+| `stripe.js` | `/v1/stripe/*` | checkout, webhook |
+
+#### `controllers/` — business logic
+
+| Folder | តួ | ឧទាហរណ៍ |
+|--------|-----|----------|
+| `auth/` | Login flow, OTP, tokens | `authControllers.js` |
+| `mentorSystem/` | Mentor CRUD, posts, analytics | `mentorPostsController.js` |
+| `studentSystem/` | Student profile, community | `studentCommunityController.js` |
+| `Admin/` | Dashboard stats, user mgmt | `dashBoardController.js` |
+| `stripe/` | Payment sessions | `stripeController.js` |
+
+#### `models/` — database
+
+| | |
+|---|---|
+| **តួ** | **Model** — table structure + Sequelize queries |
+| **ឧទាហរណ៍** | `userModel.js`, `mentorModel.js`, `studentModel.js` |
+| **ចំណាំ** | Frontend **មិនមាន** models — ទទួល JSON ពី API តែប៉ុណ្ណោះ |
+
+#### Frontend ↔ Backend តួប្រៀប
+
+| Frontend | Backend |
+|----------|---------|
+| `pages/` (View) | — (returns JSON) |
+| `hooks/` (Logic) | — |
+| `services/` (HTTP client) | `routes/` (HTTP server) |
+| `lib/*ApiMap` (field transform) | `controllers/` (business rules) |
+| — | `models/` (DB) |
 
 ### 4.1 Layer diagram
 
@@ -568,11 +921,11 @@ npm run dev
 | **Runtime** | React 19 + Vite 8 | Node.js + Express |
 | **Style** | Tailwind CSS | — |
 | **Router** | React Router | Express routes |
-| **HTTP** | `fetch` via `apiRequest` | — |
+| **HTTP client** | **Axios** via `apiRequest()` in `services/core/api.js` | — |
 | **DB** | — | PostgreSQL + Sequelize |
-| **Auth** | JWT + cookies (`authStorage`) | JWT middleware + RBAC |
+| **Auth** | JWT + cookies (`lib/authStorage.js`) | JWT middleware + RBAC |
 | **i18n** | `localeEn.js` / `localeKm.js` | — |
-| **Not used** | Redux, MUI, Axios | — |
+| **Not used** | Redux, MUI, raw `axios`/`fetch` in `pages/` | Prisma |
 
 ---
 

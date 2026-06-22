@@ -1,20 +1,20 @@
 # Frontend Team Tasks
 
-**Full guide:** [`../frontend/docs/TEAM_TASKS.md`](../frontend/docs/TEAM_TASKS.md)  
-**Git workflow:** [`../GIT_WORKFLOW.md`](../GIT_WORKFLOW.md)
+**Step guide:** [`README.md`](README.md) · **របស់អ្នក:** ជ្រើស folder ខាងក្រោម
 
-## Quick reference
+| Member | Step guide | Owns in `frontend/src/` |
+|--------|------------|-------------------------|
+| **Bunhieng** | [`bunhieng/README.md`](bunhieng/README.md) | `components/`, `services/core/`, shared `lib/` |
+| **Sorint** | [`sorint/README.md`](sorint/README.md) | `pages/auth`, `pages/onboarding`, `hooks/auth`, `services/auth` |
+| **Sophy** | [`sophy/README.md`](sophy/README.md) | `pages/student`, `services/students`, … |
+| **Sokhun** | [`sokhun/README.md`](sokhun/README.md) | `pages/mentor`, `services/mentors`, … |
+| **Ratanak** | [`ratanak/README.md`](ratanak/README.md) | `pages/community`, `services/communities`, … |
+| **Somnang** | [`somnang/README.md`](somnang/README.md) | `pages/admin`, `services/admin`, … |
 
-| Member | Paste folder | Owns in `frontend/src/` |
-|--------|--------------|-------------------------|
-| **Bunhieng** | `tasks/bunhieng/` | `components/`, `services/core/`, shared `lib/` |
-| **Sorint** | `tasks/sorint/` | `pages/auth`, `pages/onboarding`, `hooks/auth`, `services/auth` |
-| **Sophy** | `tasks/sophy/` | `pages/student`, `services/students`, … |
-| **Sokhun** | `tasks/sokhun/` | `pages/mentor`, `services/mentors`, … |
-| **Ratanak** | `tasks/ratanak/` | `pages/community`, `services/communities`, … |
-| **Somnang** | `tasks/somnang/` | `pages/admin`, `services/admin`, … |
+**លំដាប់:** ① pull → ② write/paste `tasks/<ឈ្មោះ>/` → ③ copy file → `frontend/src/` → ④ test → ⑤ build → ⑥ push
 
 ```powershell
-.\scripts\paste-task.ps1 -Member sophy
 git add tasks/sophy/
 ```
+
+**ឯកសារពេញ:** [`../frontend/docs/TEAM_TASKS.md`](../frontend/docs/TEAM_TASKS.md) · [`../GIT_WORKFLOW.md`](../GIT_WORKFLOW.md)

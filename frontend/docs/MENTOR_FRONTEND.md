@@ -15,7 +15,7 @@
 | Components | Radix UI primitives + custom | Not MUI |
 | Icons | lucide-react | |
 | Charts | recharts | Dashboard / Report |
-| HTTP | `services/core/api.js` | fetch + cookies |
+| HTTP | `services/core/api.js` | Axios + cookies |
 | State | **React hooks + AuthContext** | Not Redux |
 | Forms | **useState** controlled inputs | Not react-hook-form |
 | i18n | `lib/localeEn.js`, `localeKm.js` | `useTranslation()` |

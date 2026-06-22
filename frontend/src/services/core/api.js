@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { getApiBaseUrl as getBaseUrl, isApiEnabled } from '@/constants'
 import { getToken, setAccessTokenCookie } from '@/lib/authStorage'
 import { ApiError } from './apiErrors'
@@ -10,104 +11,124 @@ export function registerUnauthorizedHandler(handler) {
   onUnauthorized = handler
 }
 
-async function parseErrorBody(res) {
-  try {
-    return await res.json()
-  } catch {
-    return {}
+function buildPath(path) {
+  return path.startsWith('/') ? path : `/${path}`
+}
+
+function authHeaders(headers, auth) {
+  const next = { ...headers }
+  if (!auth) return next
+  const token = getToken()
+  if (token && token !== 'cookie-session') {
+    setAccessTokenCookie(token)
+    next.Authorization = `Bearer ${token}`
   }
+  return next
+}
+
+/** @param {unknown} body */
+function toAxiosData(body) {
+  if (body == null) return undefined
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body)
+    } catch {
+      return body
+    }
+  }
+  return body
+}
+
+/**
+ * @param {import('axios').AxiosError} error
+ * @param {boolean} skipAuthRedirect
+ */
+function throwApiError(error, skipAuthRedirect) {
+  if (error.response) {
+    const { status, data: body, statusText } = error.response
+    const payload = body && typeof body === 'object' ? body : {}
+    const message = payload.message ?? payload.error ?? statusText
+
+    if (status === 401 && onUnauthorized && !skipAuthRedirect) {
+      onUnauthorized()
+    }
+
+    throw new ApiError(message, status, payload)
+  }
+
+  throw error
 }
 
 /**
  * @param {string} path — e.g. `/v1/mentors`
- * @param {RequestInit & { auth?: boolean }} [init] — set auth:false to skip JWT header
+ * @param {import('axios').AxiosRequestConfig & { auth?: boolean; skipAuthRedirect?: boolean; body?: unknown }} [init]
  */
 export async function apiRequest(path, init = {}) {
-  const { auth = true, skipAuthRedirect = false, ...fetchInit } = init
-  const base = getBaseUrl()
-  const url = `${base}${path.startsWith('/') ? path : `/${path}`}`
+  const {
+    auth = true,
+    skipAuthRedirect = false,
+    method = 'GET',
+    body,
+    headers: initHeaders = {},
+    data,
+    signal,
+  } = init
 
-  const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    ...(fetchInit.headers &&
-    typeof fetchInit.headers === 'object' &&
-    !(fetchInit.headers instanceof Headers)
-      ? fetchInit.headers
-      : {}),
+  try {
+    const res = await axios.request({
+      baseURL: getBaseUrl(),
+      url: buildPath(path),
+      method: String(method).toLowerCase(),
+      data: data ?? toAxiosData(body),
+      headers: authHeaders(
+        {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          ...(initHeaders && typeof initHeaders === 'object' ? initHeaders : {}),
+        },
+        auth
+      ),
+      withCredentials: isApiEnabled(),
+      signal,
+    })
+
+    return res.status === 204 ? null : res.data
+  } catch (error) {
+    throwApiError(error, skipAuthRedirect)
   }
-
-  if (auth) {
-    const token = getToken()
-    if (token && token !== 'cookie-session') {
-      setAccessTokenCookie(token)
-      headers.Authorization = `Bearer ${token}`
-    }
-  }
-
-  const res = await fetch(url, {
-    ...fetchInit,
-    headers,
-    credentials: isApiEnabled() ? 'include' : 'same-origin',
-  })
-
-  if (!res.ok) {
-    const body = await parseErrorBody(res)
-    const message = body.message ?? body.error ?? res.statusText
-
-    if (res.status === 401 && onUnauthorized && !skipAuthRedirect) {
-      onUnauthorized()
-    }
-
-    throw new ApiError(message, res.status, body)
-  }
-
-  if (res.status === 204) return null
-  return res.json()
 }
 
-/** Multipart upload — do not set Content-Type (browser sets boundary). */
+/** Multipart upload — Content-Type set by axios for FormData. */
 export async function apiFormRequest(path, formData, init = {}) {
-  const { auth = true, skipAuthRedirect = false, method = 'POST', ...fetchInit } = init
-  const base = getBaseUrl()
-  const url = `${base}${path.startsWith('/') ? path : `/${path}`}`
+  const {
+    auth = true,
+    skipAuthRedirect = false,
+    method = 'POST',
+    headers: initHeaders = {},
+    signal,
+  } = init
 
-  const headers = {
-    Accept: 'application/json',
-    ...(fetchInit.headers &&
-    typeof fetchInit.headers === 'object' &&
-    !(fetchInit.headers instanceof Headers)
-      ? fetchInit.headers
-      : {}),
+  try {
+    const res = await axios.request({
+      baseURL: getBaseUrl(),
+      url: buildPath(path),
+      method: String(method).toLowerCase(),
+      data: formData,
+      headers: authHeaders(
+        {
+          Accept: 'application/json',
+          ...(initHeaders && typeof initHeaders === 'object' ? initHeaders : {}),
+        },
+        auth
+      ),
+      withCredentials: isApiEnabled(),
+      signal,
+    })
+
+    return res.status === 204 ? null : res.data
+  } catch (error) {
+    throwApiError(error, skipAuthRedirect)
   }
-
-  if (auth) {
-    const token = getToken()
-    if (token && token !== 'cookie-session') {
-      setAccessTokenCookie(token)
-      headers.Authorization = `Bearer ${token}`
-    }
-  }
-
-  const res = await fetch(url, {
-    ...fetchInit,
-    method,
-    headers,
-    body: formData,
-    credentials: isApiEnabled() ? 'include' : 'same-origin',
-  })
-
-  if (!res.ok) {
-    const body = await parseErrorBody(res)
-    const message = body.message ?? body.error ?? res.statusText
-    if (res.status === 401 && onUnauthorized && !skipAuthRedirect) {
-      onUnauthorized()
-    }
-    throw new ApiError(message, res.status, body)
-  }
-
-  if (res.status === 204) return null
-  return res.json()
 }
 
 export { isApiEnabled, getBaseUrl as getApiBaseUrl, ApiError }
