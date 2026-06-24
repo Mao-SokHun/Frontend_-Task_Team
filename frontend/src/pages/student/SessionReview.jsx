@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Star, CheckCircle, ThumbsUp, ThumbsDown, ChevronLeft, Sparkles } from 'lucide-react'
+import { Star, CheckCircle, ThumbsUp, ThumbsDown, ChevronLeft } from 'lucide-react'
 import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
@@ -212,7 +212,7 @@ const SessionReview = () => {
               {quickReviews.map((q, i) => (
                 <button key={i} onClick={() => setReviewText(q)}
                   className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-xl text-xs font-medium hover:bg-primary-100 transition-colors whitespace-nowrap">
-                  <Sparkles className="w-3 h-3" />Quick fill
+                  Quick fill
                 </button>
               ))}
             </div>

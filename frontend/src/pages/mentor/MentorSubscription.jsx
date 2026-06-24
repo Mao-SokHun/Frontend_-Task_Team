@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Crown, Check, Sparkles, CreditCard, Info, AlertCircle } from 'lucide-react'
+import { Crown, Check, CreditCard, Info, AlertCircle } from 'lucide-react'
 import { PageScaffold, PageCard, PageAmbient } from '@/components'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
@@ -180,7 +180,6 @@ const MentorSubscription = () => {
                     ) : (
                       <Link to={`/mentor/billing?plan=${plan.subscriptionPlanId}`}>
                         <Button variant="primary" className="w-full">
-                          <Sparkles className="w-4 h-4" />
                           {t('subscription.continueCheckout')}
                         </Button>
                       </Link>

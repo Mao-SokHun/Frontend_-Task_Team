@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Home, ArrowLeft, Sparkles } from 'lucide-react'
+import { Home, ArrowLeft } from 'lucide-react'
 import Button from '../components/ui/Button'
 
 const NotFound = () => {
@@ -10,11 +10,6 @@ const NotFound = () => {
         <div className="relative mb-8">
           <div className="text-[150px] font-black text-slate-100 leading-none select-none">
             404
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center shadow-xl">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
           </div>
         </div>
 

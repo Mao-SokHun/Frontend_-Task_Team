@@ -7,7 +7,7 @@ import AdminContentShell from '../../components/admin/content/AdminContentShell'
 import LegalSectionsEditor from '../../components/admin/content/LegalSectionsEditor'
 import LegalContentPreview from '../../components/admin/content/LegalContentPreview'
 
-const PrivacyPolicy = () => {
+const LegalPrivacy = () => {
   const { t } = useTranslation()
   const { privacySections, savePrivacy, saving, savedAt } = usePlatformContent()
   const [draft, setDraft] = useState(privacySections)
@@ -38,4 +38,4 @@ const PrivacyPolicy = () => {
   )
 }
 
-export default PrivacyPolicy
+export default LegalPrivacy

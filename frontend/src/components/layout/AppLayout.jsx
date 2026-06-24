@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import {
 
-  Sparkles, Home, Calendar, Users, Bell, Settings,
+  Home, Calendar, Users, Bell, Settings,
 
   BarChart2, CreditCard, PenSquare, LogOut, Search,
 
@@ -382,7 +382,6 @@ const AppLayout = ({ children }) => {
         <RokkruLogo
           to={user?.role === 'mentor' ? '/mentor/home' : '/home'}
           size="md"
-          showText={!isMentor || !sidebarCollapsed}
           className={clsx(
             'flex-shrink-0 transition-[width,padding] duration-200',
             isMentor ? (sidebarCollapsed ? 'w-[4.25rem] justify-center px-2' : 'w-44 px-5 sm:px-6') : 'px-5 sm:px-6'

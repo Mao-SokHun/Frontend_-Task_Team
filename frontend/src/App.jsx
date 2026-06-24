@@ -50,7 +50,7 @@ import RoleManagement from './pages/admin/RoleManagement'
 import AdminSettings from './pages/admin/AdminSettings'
 import HelpCenter from './pages/admin/HelpCenter'
 import TermsOfService from './pages/admin/TermsOfService'
-import PrivacyPolicy from './pages/admin/PrivacyPolicy'
+import LegalPrivacy from './pages/admin/LegalPrivacy'
 import ContactSupport from './pages/admin/ContactSupport'
 import Billing from './pages/admin/Billing'
 import { LegalWrapper } from '@/components'
@@ -340,7 +340,7 @@ const AppRoutes = () => (
     } />
     <Route path="/admin/privacy" element={
       <ProtectedRoute role="admin">
-        <AdminLayout><PrivacyPolicy /></AdminLayout>
+        <AdminLayout><LegalPrivacy /></AdminLayout>
       </ProtectedRoute>
     } />
     <Route path="/admin/contact" element={<AdminOrPublicContact AdminPage={ContactSupport} />} />
