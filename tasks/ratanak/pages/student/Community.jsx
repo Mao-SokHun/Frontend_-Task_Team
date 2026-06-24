@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCommunityPostState } from '@/hooks'
 import { useAuth } from '@/hooks'
-import { communitySubjectTabs } from '@/constants'
+import { COMMUNITY_FEED_TABS } from '@/constants'
 import { isApiEnabled } from '@/constants'
 import {
   SubjectTabs,
@@ -13,6 +13,7 @@ import {
 } from '@/components'
 import { useTranslation } from '@/i18n'
 import { useCommunityFeed } from '@/hooks/useCommunityFeed'
+import { useCommunities } from '@/hooks/useCommunities'
 
 const Community = () => {
   const { t } = useTranslation()
@@ -21,8 +22,17 @@ const Community = () => {
   const { user } = useAuth()
   const [activeFilter, setActiveFilter] = useState('ALL POSTS')
   const [createOpen, setCreateOpen] = useState(false)
-  const { likedIds, commentsByPost, toggleLike } = useCommunityPostState()
+  const { isLiked, getLikeCount, commentsByPost, toggleLike } = useCommunityPostState()
   const { posts, loading } = useCommunityFeed({ limit: 100 })
+  const { communities: types } = useCommunities()
+
+  const feedTabs = useMemo(() => {
+    if (!types.length) return COMMUNITY_FEED_TABS
+    const names = types
+      .map((row) => String(row.name ?? '').trim().toUpperCase())
+      .filter(Boolean)
+    return ['ALL POSTS', ...[...new Set(names)]]
+  }, [types])
 
   useEffect(() => {
     if (location.state?.openCreatePost) {
@@ -52,7 +62,7 @@ const Community = () => {
         />
 
         <div className="glass-panel rounded-xl px-2.5 sm:px-3 py-1 sm:py-1.5">
-          <SubjectTabs spread tabs={communitySubjectTabs} active={activeFilter} onChange={setActiveFilter} />
+          <SubjectTabs spread tabs={feedTabs} active={activeFilter} onChange={setActiveFilter} />
         </div>
       </section>
 
@@ -66,8 +76,9 @@ const Community = () => {
             <CommunityPostCard
               key={post.id}
               post={post}
-              comments={commentsByPost[post.id] || []}
-              liked={likedIds.includes(post.id)}
+              comments={commentsByPost[String(post.id)] || []}
+              liked={isLiked(post.id)}
+              likeCount={getLikeCount(post.id, post.likes)}
               onLike={() => toggleLike(post.id)}
             />
           ))

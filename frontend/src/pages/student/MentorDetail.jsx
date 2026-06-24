@@ -10,7 +10,6 @@ import {
   GraduationCap,
   Mail,
   MapPin,
-  MessageCircle,
   Star,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -20,11 +19,9 @@ import TeachingFocusPills, { buildTeachingFocusRows } from '@/components/common/
 import { useAuth, useMentorDetail } from '@/hooks'
 import { useTranslation } from '@/i18n'
 import { SHARED_ROUTES, STUDENT_ROUTES } from '@/constants/student/studentRoutes'
+import { isBookingsEnabled, isMessagesEnabled } from '@/constants/config/platformFeatures'
 import { splitExperienceByType } from '@/services/mentors/mentorService'
-import {
-  resolveEducationForProfileView,
-  resolveWorkExperienceForProfileView,
-} from '@/utils/mentorOwnProfileUtils'
+import MentorRatingsSection from '@/components/mentor/MentorRatingsSection'
 
 const HONORIFIC = /^(dr|prof|mr|mrs|ms|assoc\.?\s*prof)\.?\s*$/i
 
@@ -67,7 +64,7 @@ const MentorDetail = () => {
   const { user } = useAuth()
   const { id } = useParams()
   const { mentor, credentials, availabilitySlots, experience, loading, error } = useMentorDetail(id)
-  const canBook = user?.role !== 'mentor' && user?.role !== 'admin'
+  const canBook = isBookingsEnabled() && user?.role !== 'mentor' && user?.role !== 'admin'
 
   const { education: educationSource, work: workSource } = useMemo(
     () => splitExperienceByType(experience),
@@ -181,6 +178,7 @@ const MentorDetail = () => {
                 </button>
               </Link>
             )}
+            {isMessagesEnabled() && (
             <Link to={SHARED_ROUTES.messages} className="w-full sm:w-auto">
               <button
                 type="button"
@@ -190,6 +188,7 @@ const MentorDetail = () => {
                 {t('mentorDetail.messageMentor', { name: messageName })}
               </button>
             </Link>
+            )}
           </div>
         </div>
       </PageCard>
@@ -273,14 +272,8 @@ const MentorDetail = () => {
           </PageCard>
 
           <PageCard>
-            <SectionLabel
-              action={
-                <span className="text-xs font-medium text-teal-600">{t('mentorDetail.viewAllReviews')}</span>
-              }
-            >
-              {t('mentorDetail.studentInsights')}
-            </SectionLabel>
-            <p className="text-sm text-slate-500 text-center py-6">{t('mentorDetail.noReviews')}</p>
+            <SectionLabel>{t('mentorDetail.studentInsights')}</SectionLabel>
+            <MentorRatingsSection mentorId={id} showSummary={false} />
           </PageCard>
         </div>
 
@@ -382,15 +375,6 @@ const MentorDetail = () => {
                 </div>
               </div>
             )}
-            <Link to="/messages" className="block mt-5">
-              <button
-                type="button"
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-teal-200 text-teal-800 text-sm font-semibold hover:bg-teal-50/80 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                {t('mentorDetail.sendInquiry')}
-              </button>
-            </Link>
           </PageCard>
         </div>
       </div>

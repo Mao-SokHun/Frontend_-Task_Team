@@ -87,3 +87,44 @@ export function communityPostToApiPayload({ communityTypeId, title, description,
     image_url: imageUrl?.trim() || null,
   }
 }
+
+function formatCommentDate(value) {
+  if (!value) return ''
+  try {
+    const d = new Date(value)
+    if (Number.isNaN(d.getTime())) return String(value)
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  } catch {
+    return String(value)
+  }
+}
+
+/** Backend comment row → feed UI */
+export function communityCommentRowToUi(row = {}) {
+  const user = row.User ?? row.user ?? {}
+  const author =
+    user.user_name ??
+    user.email?.split('@')[0] ??
+    'User'
+
+  return {
+    id: row.comment_id ?? row.id,
+    author,
+    time: formatCommentDate(row.create_date ?? row.created_at),
+    content: row.content ?? '',
+  }
+}
+
+/** Root comments + nested replies as a flat list for the feed UI */
+export function flattenCommunityComments(comments = []) {
+  const out = []
+  for (const row of comments) {
+    out.push(communityCommentRowToUi(row))
+    const replies = row.Replies ?? row.replies ?? []
+    for (const reply of replies) {
+      const ui = communityCommentRowToUi(reply)
+      out.push({ ...ui, author: `↳ ${ui.author}` })
+    }
+  }
+  return out
+}

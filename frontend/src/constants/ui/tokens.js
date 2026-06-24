@@ -42,8 +42,6 @@ export const topNavTabs = [
   { label: 'COMMUNITY', href: '/community' },
 ]
 
-export { COMMUNITY_FEED_TABS as communitySubjectTabs } from '../communities/communityUi'
-
 export const mentorSidebarNav = [
   { label: 'Dashboard', href: '/mentor/home', key: 'dashboard' },
   { label: 'Reports', href: '/mentor/analytics', key: 'reports' },
@@ -51,5 +49,3 @@ export const mentorSidebarNav = [
   { label: 'Create Post', action: 'createPost', key: 'createPost' },
 ]
 
-/** Landing — teachers + bottom CTA mesh/polygon animation (set true to re-enable) */
-export const LANDING_SECTION_BG_ANIMATION_ENABLED = false

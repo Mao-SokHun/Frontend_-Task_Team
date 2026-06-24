@@ -7,6 +7,7 @@ import clsx from 'clsx'
 const CommunityPostCard = ({
   post,
   liked,
+  likeCount,
   comments = [],
   onLike,
   onShare,
@@ -15,6 +16,9 @@ const CommunityPostCard = ({
 }) => {
   const navigate = useNavigate()
   const commentCount = comments.length || post.comments || 0
+  const displayLikes = likeCount ?? post.likes ?? 0
+  const body = post.content || post.body || post.preview || ''
+
   const detailPath = linkTo === false ? null : (linkTo ?? `/community/post/${post.id}`)
 
   const openPost = () => {
@@ -69,7 +73,7 @@ const CommunityPostCard = ({
                 preview && 'line-clamp-2'
               )}
             >
-              {post.content}
+              {body}
             </p>
           </div>
         </div>
@@ -88,7 +92,7 @@ const CommunityPostCard = ({
           )}
         >
           <Heart className={clsx('w-3.5 h-3.5', liked && 'fill-primary-500')} />
-          {post.likes + (liked ? 1 : 0)}
+          {displayLikes}
         </button>
         <button
           type="button"

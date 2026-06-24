@@ -89,6 +89,14 @@ export const ENDPOINTS = {
     },
   },
 
+  /** Likes, comments, trending — posts CRUD stays on /v1/students/community */
+  community: {
+    postLikes: (postId) => `/v1/community/posts/${postId}/like`,
+    postComments: (postId) => `/v1/community/posts/${postId}/comments`,
+    commentById: (commentId) => `/v1/community/comments/${commentId}`,
+    trending: '/v1/community/posts/trending',
+  },
+
   admin: {
     dashboard: {
       stats: '/v1/admin/dashboard/stats',

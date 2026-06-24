@@ -1,42 +1,15 @@
 # Somnang — Admin
 
-**ធ្វើតាមលំដាប់នេះ — កុំខុសជំហាន**
+| | |
+|---|---|
+| **Folder** | `tasks/somnang/` |
+| **Push** | រង្វង់នេះ **skip** — `git pull` តែប៉ុណ្ណោះ |
+| **Hub** | [`../README.md`](../README.md) |
 
-Folder របស់អ្នក: **`tasks/somnang/`**
+**Path rule:** `tasks/somnang/pages/admin/` → `frontend/src/pages/admin/` (ដូចគ្នា)
 
-### រូបជំហាន (មើលមុនពេលធ្វើ)
-
-```mermaid
-flowchart LR
-  A["① Pull<br/>git pull"] --> B["② Write/Paste<br/>tasks/somnang/"]
-  B --> C["③ Copy file<br/>→ frontend/src/"]
-  C --> D["④ Test<br/>npm run dev"]
-  D --> E["⑤ Build<br/>npm run build"]
-  E --> F["⑥ Push<br/>git push"]
-```
-
-### រូប paste file — សរសេរទីនេះមុន → copy ទៅ app
-
-```mermaid
-flowchart LR
-  subgraph STEP2["② សរសេរ / paste ទីនេះមុន"]
-    T1["tasks/somnang/pages/admin/"]
-    T2["tasks/somnang/hooks/admin/"]
-    T3["tasks/somnang/services/admin/"]
-    T4["tasks/somnang/components/admin/"]
-  end
-
-  subgraph APP["③ copy paste → app រួម"]
-    F1["frontend/src/pages/admin/"]
-    F2["frontend/src/hooks/admin/"]
-    F3["frontend/src/services/admin/"]
-    F4["frontend/src/components/admin/"]
-  end
-
-  T1 --> F1
-  T2 --> F2
-  T3 --> F3
-  T4 --> F4
+```powershell
+.\scripts\paste-task.ps1 -Member somnang
 ```
 
 > ឧ. `tasks/somnang/pages/admin/UserManagement.jsx` → `frontend/src/pages/admin/UserManagement.jsx`
@@ -115,17 +88,21 @@ npm run build
 
 ---
 
-## ⑥ Push — ផ្ញើ GitLab
+## ⑥ Push
+
+រង្វង់នេះ **មិនទាន់ commit** — ពេលមាន task ថ្មី៖
 
 ```powershell
-cd "d:\Full Frontend"
-git add tasks/somnang/
-git status
+git pull origin main
+.\scripts\paste-task.ps1 -Member somnang
+cd frontend; npm run build; cd ..
+git add tasks/somnang/pages/ tasks/somnang/components/ tasks/somnang/hooks/ tasks/somnang/services/
+git add frontend/src/pages/admin/
 git commit -m "feat(somnang): ..."
-git push
+git push origin main
 ```
 
-**កុំ commit:** `node_modules/`, `.env`, `dist/`, folder member ផ្សេង
+**កុំ:** `git add .` · folder member ផ្សេង · file **README**
 
 ---
 
@@ -144,4 +121,4 @@ git push
 - [ ] User table ពី API
 - [ ] Suspend / change role wired
 
-**ឯកសារពេញ:** [`../../frontend/docs/TEAM_TASKS.md`](../../frontend/docs/TEAM_TASKS.md)
+**ឯកសារ:** [`../README.md`](../README.md) · [`../COMMIT_GUIDE.md`](../COMMIT_GUIDE.md)

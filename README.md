@@ -21,8 +21,8 @@ git push
 ```
 
 **អានលម្អិត:** [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md)  
-**Folder ownership:** [`frontend/docs/TEAM_TASKS.md`](frontend/docs/TEAM_TASKS.md)  
-**Structure:** [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md)
+**Team workflow:** [`tasks/README.md`](tasks/README.md) — commit command នៅ `tasks/<member>/README.md`  
+**Folder ownership:** [`tasks/TEAM_TASKS.md`](tasks/TEAM_TASKS.md)
 
 ## Bunhieng / shared
 

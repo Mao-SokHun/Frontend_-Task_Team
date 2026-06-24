@@ -1,51 +1,126 @@
-import { useCallback, useState } from 'react'
-import { COMMUNITY_INITIAL_COMMENTS } from '@/constants'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isApiEnabled } from '@/constants'
+import {
+  createCommunityPostComment,
+  fetchCommunityPostComments,
+  fetchCommunityPostLikes,
+  toggleCommunityPostLike,
+} from '@/services/communities/communityService'
 
-const LIKES_KEY = 'rokkru_community_likes'
-const COMMENTS_KEY = 'rokkru_community_comments'
+const postKey = (id) => String(id)
 
-const readJson = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
-  } catch {
-    return fallback
-  }
-}
+/**
+ * Community post likes & comments via /v1/community/* (posts CRUD stays on /v1/students/community).
+ * @param {string|number|null|undefined} [focusPostId] — when set, loads likes + comments for that post
+ */
+export function useCommunityPostState(focusPostId = null) {
+  const [likedIds, setLikedIds] = useState(() => new Set())
+  const [likeCounts, setLikeCounts] = useState({})
+  const [commentsByPost, setCommentsByPost] = useState({})
+  const [engagementLoading, setEngagementLoading] = useState(false)
+  const [engagementError, setEngagementError] = useState(null)
 
-const writeJson = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value))
-}
+  const likedIdList = useMemo(() => [...likedIds], [likedIds])
 
-export function useCommunityPostState() {
-  const [likedIds, setLikedIds] = useState(() => readJson(LIKES_KEY, []))
-  const [commentsByPost, setCommentsByPost] = useState(() =>
-    readJson(COMMENTS_KEY, COMMUNITY_INITIAL_COMMENTS)
+  const refreshLikes = useCallback(async (postId) => {
+    if (!postId || !isApiEnabled()) return
+    const counts = await fetchCommunityPostLikes(postId)
+    const key = postKey(postId)
+    setLikeCounts((prev) => ({ ...prev, [key]: counts.likes_count }))
+  }, [])
+
+  const refreshComments = useCallback(async (postId) => {
+    if (!postId || !isApiEnabled()) return
+    const items = await fetchCommunityPostComments(postId)
+    const key = postKey(postId)
+    setCommentsByPost((prev) => ({ ...prev, [key]: items }))
+  }, [])
+
+  useEffect(() => {
+    if (!focusPostId || !isApiEnabled()) return
+
+    let cancelled = false
+    setEngagementLoading(true)
+    setEngagementError(null)
+
+    Promise.all([refreshLikes(focusPostId), refreshComments(focusPostId)])
+      .catch((err) => {
+        if (!cancelled) setEngagementError(err)
+      })
+      .finally(() => {
+        if (!cancelled) setEngagementLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [focusPostId, refreshLikes, refreshComments])
+
+  const isLiked = useCallback(
+    (postId) => likedIds.has(postKey(postId)),
+    [likedIds]
   )
 
-  const toggleLike = useCallback((id) => {
-    setLikedIds((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-      writeJson(LIKES_KEY, next)
-      return next
-    })
-  }, [])
+  const getLikeCount = useCallback(
+    (postId, fallback = 0) => {
+      const key = postKey(postId)
+      if (likeCounts[key] != null) return likeCounts[key]
+      return fallback
+    },
+    [likeCounts]
+  )
 
-  const addComment = useCallback((postId, text, author = 'Student') => {
-    setCommentsByPost((prev) => {
-      const next = {
-        ...prev,
-        [postId]: [
-          ...(prev[postId] || []),
-          { id: `c-${Date.now()}`, author, time: 'Just now', content: text },
-        ],
+  const toggleLike = useCallback(
+    async (postId) => {
+      if (!postId || !isApiEnabled()) return
+      const key = postKey(postId)
+      const wasLiked = likedIds.has(key)
+
+      setEngagementError(null)
+      try {
+        await toggleCommunityPostLike(postId, { is_like: true })
+        setLikedIds((prev) => {
+          const next = new Set(prev)
+          if (wasLiked) next.delete(key)
+          else next.add(key)
+          return next
+        })
+        await refreshLikes(postId)
+      } catch (err) {
+        setEngagementError(err)
+        throw err
       }
-      writeJson(COMMENTS_KEY, next)
-      return next
-    })
-  }, [])
+    },
+    [likedIds, refreshLikes]
+  )
 
-  return { likedIds, commentsByPost, toggleLike, addComment }
+  const addComment = useCallback(
+    async (postId, text) => {
+      if (!postId || !text?.trim() || !isApiEnabled()) return
+      setEngagementError(null)
+      try {
+        await createCommunityPostComment(postId, text)
+        await refreshComments(postId)
+      } catch (err) {
+        setEngagementError(err)
+        throw err
+      }
+    },
+    [refreshComments]
+  )
+
+  return {
+    likedIds: likedIdList,
+    isLiked,
+    getLikeCount,
+    commentsByPost,
+    toggleLike,
+    addComment,
+    refreshLikes,
+    refreshComments,
+    engagementLoading,
+    engagementError,
+  }
 }
 
 export default useCommunityPostState

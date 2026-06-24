@@ -1,19 +1,18 @@
 import { useState } from 'react'
-import { CheckCircle, MapPin, Users, Clock, Globe, BookOpen, Star, MessageCircle, Share2, Heart, Award, ArrowLeft, Video, Calendar } from 'lucide-react'
+import { CheckCircle, MapPin, Users, Clock, Globe, BookOpen, Star, Share2, Heart, Award, ArrowLeft, Video } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
-import StarRating from '../../components/ui/StarRating'
-import { useMentorDetail } from '@/hooks'
-import { useTranslation } from '@/i18n'
 import clsx from 'clsx'
+import { useTranslation } from '@/i18n'
+import MentorRatingsSection from '@/components/mentor/MentorRatingsSection'
+import { useMentorDetail } from '@/hooks'
 
 const MentorPublicProfile = () => {
   const { t } = useTranslation()
   const { id } = useParams()
   const { mentor, credentials, availabilitySlots, loading, error } = useMentorDetail(id)
-  const reviews = []
   const timeSlots = availabilitySlots.map((slot) => slot.label)
   const [selectedSlot, setSelectedSlot] = useState(0)
   const [liked, setLiked] = useState(false)
@@ -223,34 +222,8 @@ const MentorPublicProfile = () => {
           {/* Tab: Reviews */}
           {activeTab === 'Reviews' && (
             <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-soft">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-bold text-slate-800">Student Reviews</h2>
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl font-black text-slate-800">{mentor.rating}</span>
-                  <div>
-                    <StarRating rating={mentor.rating} size="md" />
-                    <p className="text-xs text-slate-400 mt-0.5">{mentor.reviewCount} reviews</p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-5">
-                {reviews.length === 0 && (
-                  <p className="text-sm text-slate-500 text-center py-4">{t('mentorDetail.noReviews')}</p>
-                )}
-                {reviews.map((r, i) => (
-                  <div key={i} className="pb-5 border-b border-slate-100 last:border-0 last:pb-0">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Avatar name={r.author} size="sm" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-slate-800">{r.author}</p>
-                        <p className="text-xs text-slate-400">{r.time}</p>
-                      </div>
-                      <StarRating rating={r.rating} size="sm" />
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">{r.text}</p>
-                  </div>
-                ))}
-              </div>
+              <h2 className="font-bold text-slate-800 mb-6">Student Reviews</h2>
+              <MentorRatingsSection mentorId={id} />
             </div>
           )}
 
@@ -325,26 +298,17 @@ const MentorPublicProfile = () => {
                 <span>1 hour session</span>
                 <span className="font-medium">${mentor.price}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>Platform fee</span>
-                <span className="font-medium">$2</span>
-              </div>
-              <div className="flex justify-between font-bold text-slate-800 border-t border-slate-100 pt-2">
-                <span>Total</span>
-                <span>${(mentor.price || 0) + 2}</span>
-              </div>
             </div>
 
-            <Button variant="secondary" size="lg" className="w-full mb-2">
-              <Calendar className="w-4 h-4" />
-              Book Session
-            </Button>
-            <Button variant="ghost" size="md" className="w-full">
-              <MessageCircle className="w-4 h-4" />
-              Send Message
-            </Button>
+            <Link to={`/mentor/${id}`} className="block">
+              <Button variant="secondary" size="lg" className="w-full">
+                View full profile
+              </Button>
+            </Link>
 
-            <p className="text-xs text-center text-slate-400 mt-3">Free cancellation up to 24h before</p>
+            <p className="text-xs text-center text-slate-400 mt-3">
+              Browse published sessions on Schedule
+            </p>
           </div>
         </div>
       </div>

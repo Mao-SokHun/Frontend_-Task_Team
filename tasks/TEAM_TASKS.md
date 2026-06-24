@@ -1,20 +1,45 @@
-# Frontend Team Tasks
+# Team ownership — file រួម
 
-**Step guide:** [`README.md`](README.md) · **របស់អ្នក:** ជ្រើស folder ខាងក្រោម
+ពេល **មិនដឹង** file ណាជា member ណា → មើលតារាងនេះ។
 
-| Member | Step guide | Owns in `frontend/src/` |
-|--------|------------|-------------------------|
-| **Bunhieng** | [`bunhieng/README.md`](bunhieng/README.md) | `components/`, `services/core/`, shared `lib/` |
-| **Sorint** | [`sorint/README.md`](sorint/README.md) | `pages/auth`, `pages/onboarding`, `hooks/auth`, `services/auth` |
-| **Sophy** | [`sophy/README.md`](sophy/README.md) | `pages/student`, `services/students`, … |
-| **Sokhun** | [`sokhun/README.md`](sokhun/README.md) | `pages/mentor`, `services/mentors`, … |
-| **Ratanak** | [`ratanak/README.md`](ratanak/README.md) | `pages/community`, `services/communities`, … |
-| **Somnang** | [`somnang/README.md`](somnang/README.md) | `pages/admin`, `services/admin`, … |
+**Commit commands:** [`COMMIT_GUIDE.md`](COMMIT_GUIDE.md) · **Hub:** [`README.md`](README.md)
 
-**លំដាប់:** ① pull → ② write/paste `tasks/<ឈ្មោះ>/` → ③ copy file → `frontend/src/` → ④ test → ⑤ build → ⑥ push
+---
 
-```powershell
-git add tasks/sophy/
+## Push order
+
+```
+Bunhieng (①) → Sophy (②) → Ratanak (③) → Sokhun (④)
 ```
 
-**ឯកសារពេញ:** [`../frontend/docs/TEAM_TASKS.md`](../frontend/docs/TEAM_TASKS.md) · [`../GIT_WORKFLOW.md`](../GIT_WORKFLOW.md)
+---
+
+## Shared files — តើជា member ណា?
+
+| File / folder | Owner | ហេតុ |
+|---------------|-------|------|
+| `App.jsx` | Bunhieng | routes + លាក់ feature |
+| `MainLayout`, `settingsMenuConfig` | Bunhieng | nav |
+| `SearchFilter`, `constants/filters/` | Bunhieng | mentor catalog |
+| `platformFeatures.js` | Bunhieng | on/off feature |
+| `localeEn.js`, `localeKm.js` | Bunhieng | i18n |
+| `CommunityPostCard.jsx` | Bunhieng | UI រួម (Ratanak កុំកែឯករាជ្យ) |
+| `MentorRatingsSection.jsx` | Sophy | Sokhun import |
+| `services/students/` | Sophy | student API |
+| `pages/community/`, `services/communities/` | Ratanak | community |
+| `endpoints.js` (community block) | Ratanak | like/comment API |
+| `communityUi.js` | Ratanak | community constants |
+| `MentorPublicProfile.jsx` | Sokhun | mentor public page |
+
+---
+
+## Folder mirror
+
+```
+tasks/bunhieng/components/...  →  frontend/src/components/...
+tasks/sophy/pages/student/...   →  frontend/src/pages/student/...
+tasks/ratanak/pages/community/  →  frontend/src/pages/community/...
+tasks/sokhun/pages/mentor/...   →  frontend/src/pages/mentor/...
+```
+
+path ក្រោម `tasks/<member>/` ត្រូវ **ដូច** path ក្រោម `frontend/src/`។

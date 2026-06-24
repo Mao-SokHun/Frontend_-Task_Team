@@ -1,14 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, Lock, Globe, Hash, Image, ArrowLeft, Check } from 'lucide-react'
 import Input from '../../components/ui/Input'
 import Button from '../../components/ui/Button'
 import { PageScaffold, PageCard } from '@/components'
+import { fetchCommunityTypes } from '@/services/communities/communityService'
+import { isApiEnabled } from '@/constants'
 import clsx from 'clsx'
-
-import { COMMUNITY_CATEGORIES } from '@/constants'
-
-const categories = COMMUNITY_CATEGORIES
 
 const colorOptions = [
   { label: 'Rose', value: 'from-primary-400 to-primary-500' },
@@ -24,11 +22,34 @@ const CreateCommunity = () => {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState(COMMUNITY_CATEGORIES[0])
+  const [categories, setCategories] = useState([])
+  const [category, setCategory] = useState('')
   const [privacy, setPrivacy] = useState('public')
   const [selectedColor, setSelectedColor] = useState(colorOptions[0].value)
   const [selectedIcon, setSelectedIcon] = useState('📐')
   const [step, setStep] = useState(1)
+  const [typesLoading, setTypesLoading] = useState(isApiEnabled())
+
+  useEffect(() => {
+    if (!isApiEnabled()) {
+      setTypesLoading(false)
+      return
+    }
+    let cancelled = false
+    fetchCommunityTypes()
+      .then((types) => {
+        if (cancelled) return
+        const names = types.map((t) => t.name).filter(Boolean)
+        setCategories(names)
+        setCategory(names[0] ?? '')
+      })
+      .finally(() => {
+        if (!cancelled) setTypesLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -90,14 +111,20 @@ const CreateCommunity = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((c) => (
-                    <button key={c} type="button" onClick={() => setCategory(c)}
-                      className={clsx('px-4 py-2 rounded-xl text-sm font-medium border transition-all', category === c ? 'bg-primary-500 text-white border-primary-400' : 'border-slate-200 text-slate-600 hover:border-primary-200')}>
-                      {c}
-                    </button>
-                  ))}
-                </div>
+                {typesLoading ? (
+                  <p className="text-sm text-slate-500">Loading categories from API…</p>
+                ) : categories.length === 0 ? (
+                  <p className="text-sm text-slate-500">No community types from API yet.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((c) => (
+                      <button key={c} type="button" onClick={() => setCategory(c)}
+                        className={clsx('px-4 py-2 rounded-xl text-sm font-medium border transition-all', category === c ? 'bg-primary-500 text-white border-primary-400' : 'border-slate-200 text-slate-600 hover:border-primary-200')}>
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Privacy</label>
@@ -158,7 +185,7 @@ const CreateCommunity = () => {
           {step === 3 && (
             <div className="space-y-5">
               <h2 className="font-semibold text-slate-800">Review & Create</h2>
-              <p className="text-sm text-slate-500">Here&apos;s how your community will look. You can edit settings later.</p>
+              <p className="text-sm text-slate-500">Community creation API is not wired yet — preview only.</p>
               <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
                 <div className={clsx('w-full h-20 rounded-xl bg-gradient-to-br mb-4 flex items-center justify-center text-4xl', preview.color)}>{preview.icon}</div>
                 <h3 className="font-bold text-slate-800 text-lg">{preview.name}</h3>
@@ -166,7 +193,9 @@ const CreateCommunity = () => {
                 <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
                   <span className="flex items-center gap-1"><Users className="w-3 h-3" /> 1 member</span>
                   <span className="flex items-center gap-1">{privacy === 'public' ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />} {privacy}</span>
-                  <span className="bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full font-medium">{category}</span>
+                  {category ? (
+                    <span className="bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full font-medium">{category}</span>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -190,7 +219,7 @@ const CreateCommunity = () => {
             <p className="text-white/80 text-sm mt-1 line-clamp-2">{preview.description}</p>
           </div>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-slate-500">Category</span><span className="text-xs font-medium bg-slate-100 px-2 py-0.5 rounded-full">{category}</span></div>
+            <div className="flex justify-between"><span className="text-slate-500">Category</span><span className="text-xs font-medium bg-slate-100 px-2 py-0.5 rounded-full">{category || '—'}</span></div>
             <div className="flex justify-between"><span className="text-slate-500">Privacy</span><span className="text-xs font-medium">{privacy}</span></div>
             <div className="flex justify-between"><span className="text-slate-500">Members</span><span className="text-xs font-medium">1 (you)</span></div>
           </div>

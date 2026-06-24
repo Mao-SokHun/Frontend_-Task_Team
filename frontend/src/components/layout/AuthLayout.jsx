@@ -1,7 +1,6 @@
 import { Shield } from 'lucide-react'
 import { brand } from '@/constants'
 import Logo from './Logo'
-import AuthHeroBackground from '../backgrounds/AuthHeroBackground'
 import clsx from 'clsx'
 import { useTranslation } from '@/i18n'
 
@@ -40,10 +39,6 @@ const AuthLayout = ({
           {!isAdmin && panelRole === 'mentor' && (
             <div className="absolute top-[18%] right-[20%] w-48 h-48 rounded-full bg-amber-500/10 blur-[72px]" />
           )}
-        </div>
-
-        <div className="absolute inset-0 z-[1]">
-          <AuthHeroBackground variant={isAdmin ? 'admin' : 'auth'} meshStyle="both" />
         </div>
 
         {/* Grid + vignette */}

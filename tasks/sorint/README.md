@@ -1,42 +1,15 @@
 # Sorint — Auth & onboarding
 
-**ធ្វើតាមលំដាប់នេះ — កុំខុសជំហាន**
+| | |
+|---|---|
+| **Folder** | `tasks/sorint/` |
+| **Push** | រង្វង់នេះ **skip** — `git pull` តែប៉ុណ្ណោះ |
+| **Hub** | [`../README.md`](../README.md) |
 
-Folder របស់អ្នក: **`tasks/sorint/`**
+**Path rule:** `tasks/sorint/pages/auth/` → `frontend/src/pages/auth/` (ដូចគ្នា)
 
-### រូបជំហាន (មើលមុនពេលធ្វើ)
-
-```mermaid
-flowchart LR
-  A["① Pull<br/>git pull"] --> B["② Write/Paste<br/>tasks/sorint/"]
-  B --> C["③ Copy file<br/>→ frontend/src/"]
-  C --> D["④ Test<br/>npm run dev"]
-  D --> E["⑤ Build<br/>npm run build"]
-  E --> F["⑥ Push<br/>git push"]
-```
-
-### រូប paste file — សរសេរទីនេះមុន → copy ទៅ app
-
-```mermaid
-flowchart LR
-  subgraph STEP2["② សរសេរ / paste ទីនេះមុន"]
-    T1["tasks/sorint/pages/auth/"]
-    T2["tasks/sorint/pages/onboarding/"]
-    T3["tasks/sorint/hooks/auth/"]
-    T4["tasks/sorint/services/auth/"]
-  end
-
-  subgraph APP["③ copy paste → app រួម"]
-    F1["frontend/src/pages/auth/"]
-    F2["frontend/src/pages/onboarding/"]
-    F3["frontend/src/hooks/auth/"]
-    F4["frontend/src/services/auth/"]
-  end
-
-  T1 --> F1
-  T2 --> F2
-  T3 --> F3
-  T4 --> F4
+```powershell
+.\scripts\paste-task.ps1 -Member sorint
 ```
 
 > ឧ. `tasks/sorint/pages/auth/Login.jsx` → `frontend/src/pages/auth/Login.jsx`
@@ -115,17 +88,21 @@ npm run build
 
 ---
 
-## ⑥ Push — ផ្ញើ GitLab
+## ⑥ Push
+
+រង្វង់នេះ **មិនទាន់ commit** — ពេលមាន task ថ្មី៖
 
 ```powershell
-cd "d:\Full Frontend"
-git add tasks/sorint/
-git status
+git pull origin main
+.\scripts\paste-task.ps1 -Member sorint
+cd frontend; npm run build; cd ..
+git add tasks/sorint/components/ tasks/sorint/hooks/ tasks/sorint/pages/ tasks/sorint/services/
+git add frontend/src/pages/auth/
 git commit -m "feat(sorint): ..."
-git push
+git push origin main
 ```
 
-**កុំ commit:** `node_modules/`, `.env`, `dist/`, folder member ផ្សេង
+**កុំ:** `git add .` · folder member ផ្សេង · file **README**
 
 ---
 
@@ -144,4 +121,4 @@ git push
 - [ ] Register ប្រើ `user_type_id`
 - [ ] Onboarding redirect តាម role
 
-**ឯកសារពេញ:** [`../../frontend/docs/TEAM_TASKS.md`](../../frontend/docs/TEAM_TASKS.md)
+**ឯកសារ:** [`../README.md`](../README.md) · [`../COMMIT_GUIDE.md`](../COMMIT_GUIDE.md)

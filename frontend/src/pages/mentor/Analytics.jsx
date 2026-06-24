@@ -56,7 +56,7 @@ import {
 import { mapPostsToSessionRows } from '@/utils/mentorDetailUtils'
 import { buildProfileViewsTrend, buildWeeklyPostsTrend } from '@/utils/mentorDashboardInsights'
 
-const CHART_PRIMARY = '#c07888'
+const CHART_PRIMARY = '#2255aa'
 const STATUS_STYLES = {
   Active: 'bg-emerald-50 text-emerald-700',
   Pending: 'bg-amber-50 text-amber-700',

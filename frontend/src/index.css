@@ -12,7 +12,10 @@
     --card-foreground: 215 25% 27%;
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 27%;
-    --primary: 347 36% 61%;
+    --color-primary-400: #3b6ebb;
+    --color-primary-500: #2255aa;
+    --color-primary-600: #1b4488;
+    --primary: 214 67% 40%;
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 215 25% 27%;
@@ -24,9 +27,9 @@
     --destructive-foreground: 0 0% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 347 36% 61%;
+    --ring: 214 67% 40%;
     --radius: 0.75rem;
-    --chart-1: 347 36% 61%;
+    --chart-1: 214 67% 40%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
@@ -192,7 +195,7 @@
     height: min(56vw, 30rem);
     top: -10%;
     right: -8%;
-    background: radial-gradient(circle, rgba(192, 120, 136, 0.62) 0%, transparent 68%);
+    background: radial-gradient(circle, rgba(34, 85, 170, 0.62) 0%, transparent 68%);
     animation: ambient-blob-drift-a 18s ease-in-out infinite;
   }
 
@@ -444,7 +447,7 @@
 
   .app-glass-scope .glass-select-trigger[aria-expanded='true'] {
     background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(192, 120, 136, 0.45);
+    border-color: rgba(34, 85, 170, 0.45);
   }
 
   .glass-select-menu .select-menu-item {
@@ -674,14 +677,14 @@
     border: 1px solid rgba(255, 255, 255, 0.28) !important;
     background: linear-gradient(
       135deg,
-      #e895a3 0%,
-      #c07888 48%,
-      #a86674 100%
+      #3b6ebb 0%,
+      #2255aa 48%,
+      #1b4488 100%
     ) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     box-shadow:
-      0 16px 48px -12px rgba(143, 85, 98, 0.45),
+      0 16px 48px -12px rgba(27, 68, 136, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
     color: #fff;
   }
@@ -1075,14 +1078,14 @@
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-400'],
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-500'],
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-600'] {
-    background-color: #c07888 !important;
+    background-color: #2255aa !important;
     background-image: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     color: #ffffff !important;
     border: 1px solid rgba(255, 255, 255, 0.28) !important;
     box-shadow:
-      0 2px 10px -2px rgba(143, 85, 98, 0.38),
+      0 2px 10px -2px rgba(27, 68, 136, 0.38),
       inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
   }
 
@@ -1090,7 +1093,7 @@
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-400']:hover,
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-500']:hover,
   :is(.app-glass-scope, .admin-glass-scope) .glass-panel button[class~='bg-primary-600']:hover {
-    background-color: #a86674 !important;
+    background-color: #1b4488 !important;
   }
 
   :is(.app-glass-scope, .admin-glass-scope) .btn-solid-danger,
@@ -1123,7 +1126,7 @@
       0 10px 40px -12px rgba(168, 102, 116, 0.14),
       0 1px 0 rgba(255, 255, 255, 0.88) inset,
       0 0 0 1px rgba(255, 255, 255, 0.18) inset,
-      0 0 40px -16px rgba(192, 120, 136, 0.12);
+      0 0 40px -16px rgba(34, 85, 170, 0.12);
   }
 
   .app-glass-scope .glass-panel-hover:hover {
@@ -1190,7 +1193,7 @@
   .app-glass-scope .glass-ios-nav-item--active {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 4px 20px -8px rgba(192, 120, 136, 0.28);
+      0 4px 20px -8px rgba(34, 85, 170, 0.28);
   }
 
   .app-glass-scope .glass-ios-popover {
@@ -1534,7 +1537,7 @@
   }
 
   .poly-shape-glow {
-    filter: drop-shadow(0 0 18px rgba(192, 120, 136, 0.35));
+    filter: drop-shadow(0 0 18px rgba(34, 85, 170, 0.35));
   }
 
   .poly-shape-glow--admin {
@@ -1946,7 +1949,7 @@
     );
     border: 1px solid rgba(255, 255, 255, 0.92);
     box-shadow:
-      0 2px 10px -2px rgba(192, 120, 136, 0.22),
+      0 2px 10px -2px rgba(34, 85, 170, 0.22),
       0 1px 3px rgba(15, 23, 42, 0.06),
       inset 0 1px 0 rgba(255, 255, 255, 1);
     transition: transform 0.28s cubic-bezier(0.34, 1.25, 0.64, 1);
@@ -2019,7 +2022,7 @@
   }
 
   .teacher-flow-orb--rose {
-    background: radial-gradient(circle, rgba(192, 120, 136, 0.42) 0%, transparent 68%);
+    background: radial-gradient(circle, rgba(34, 85, 170, 0.42) 0%, transparent 68%);
   }
 
   .teacher-flow-orb--blush {
@@ -2083,7 +2086,7 @@
   .teacher-flow-mote {
     position: absolute;
     border-radius: 50%;
-    background: rgba(192, 120, 136, 0.55);
+    background: rgba(34, 85, 170, 0.55);
     box-shadow: 0 0 8px rgba(232, 188, 195, 0.45);
     animation: teacher-flow-mote-float ease-in-out infinite;
     will-change: transform, opacity;
@@ -2214,7 +2217,7 @@
     );
     box-shadow:
       inset 0 2px 24px rgba(255, 255, 255, 0.65),
-      0 12px 48px rgba(192, 120, 136, 0.12);
+      0 12px 48px rgba(34, 85, 170, 0.12);
     filter: blur(44px) saturate(1.5);
     opacity: 0.82;
     will-change: transform, opacity;

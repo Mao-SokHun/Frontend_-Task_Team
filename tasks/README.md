@@ -1,56 +1,49 @@
-# Team tasks
+# Team tasks — RokKru Frontend
 
-**មួយ member = មួយ folder** — mirror path ក្នុង `frontend/src/`
-
-### រូបជំហាន (គ្រប់គ្នា)
-
-```mermaid
-flowchart LR
-  A["① Pull<br/>git pull"] --> B["② Write/Paste<br/>tasks/ឈ្មោះអ្នក/"]
-  B --> C["③ Copy file<br/>→ frontend/src/"]
-  C --> D["④ Test<br/>npm run dev"]
-  D --> E["⑤ Build<br/>npm run build"]
-  E --> F["⑥ Push<br/>git push"]
-```
-
-### រូប paste file — សរសេរ tasks មុន → copy ទៅ frontend
-
-```mermaid
-flowchart LR
-  PULL["① git pull"] --> TASK
-
-  subgraph TASK["② សរសេរ / paste"]
-    T["tasks/sophy/pages/student/Profile.jsx"]
-  end
-
-  COPY["③ copy paste"]
-
-  subgraph FE["app រួម"]
-    F["frontend/src/pages/student/Profile.jsx"]
-  end
-
-  TEST["④ test → ⑤ build → ⑥ push"]
-
-  TASK --> COPY --> F --> TEST
-```
-
-> path ដូចគ្នា — `tasks/<member>/...` = `frontend/src/...` (copy paste ធម្មតា)
-
-**កុំ commit:** `node_modules/`, `.env`, `dist/`
+គ្រប់ member កែ **`tasks/<ឈ្មោះ>/`** → copy → **`frontend/src/`** → push ដោយខ្លួន។
 
 ---
 
-## ជ្រើស folder របស់អ្នក
+## ច្បាប់
 
-| Member | អាន step guide |
-|--------|----------------|
-| Bunhieng | [`bunhieng/README.md`](bunhieng/README.md) |
-| Sorint | [`sorint/README.md`](sorint/README.md) |
-| Sophy | [`sophy/README.md`](sophy/README.md) |
-| Sokhun | [`sokhun/README.md`](sokhun/README.md) |
-| Ratanak | [`ratanak/README.md`](ratanak/README.md) |
-| Somnang | [`somnang/README.md`](somnang/README.md) |
+| # | ច្បាប់ |
+|---|--------|
+| 1 | **`git add` → `git commit` → `git push`** — មួយរង្វង់ រួចធ្វើ folder បន្ទាប់ |
+| 2 | `git add` **តែ folder របស់អ្នក** — កុំ `git add .` |
+| 3 | **កុំ** `git add` file **README** (`README.md`, `tasks/README.md`, …) |
+| 4 | Member បន្ទាប់ **`git pull`** មុនចាប់ push |
+
+```
+add folder A → commit → push
+add folder B → commit → push
+add folder C → commit → push
+```
 
 ---
 
-ឯកសារពេញ: [`../frontend/docs/TEAM_TASKS.md`](../frontend/docs/TEAM_TASKS.md)
+## អ្នកជា member ណា?
+
+| # | Member | README |
+|---|--------|--------|
+| ① | [**Bunhieng**](bunhieng/README.md) | [§ Push](bunhieng/README.md#-push) |
+| ② | [**Sophy**](sophy/README.md) | [§ Push](sophy/README.md#-push) |
+| ③ | [**Ratanak**](ratanak/README.md) | [§ Push](ratanak/README.md#-push) |
+| ④ | [**Sokhun**](sokhun/README.md) | [§ Push](sokhun/README.md#-push) |
+
+```
+① Bunhieng → ② Sophy → ③ Ratanak → ④ Sokhun
+```
+
+---
+
+## Workflow
+
+```powershell
+cd "d:\Full Frontend"
+git pull origin main
+.\scripts\paste-task.ps1 -Member sophy   # ផ្លាស់ឈ្មោះ
+cd frontend; npm run dev; npm run build
+# បន្ទាប់មើល README §⑥ — add → commit → push តាម folder
+```
+
+[`TEAM_TASKS.md`](TEAM_TASKS.md) · [`COMMIT_GUIDE.md`](COMMIT_GUIDE.md)

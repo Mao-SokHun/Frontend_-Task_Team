@@ -1,147 +1,76 @@
 # Bunhieng — Shared core
 
-**ធ្វើតាមលំដាប់នេះ — កុំខុសជំហាន**
+| | |
+|---|---|
+| **Folder** | `tasks/bunhieng/` |
+| **Push** | **① មុនគេ** |
 
-Folder របស់អ្នក: **`tasks/bunhieng/`**
-
-### រូបជំហាន (មើលមុនពេលធ្វើ)
-
-```mermaid
-flowchart LR
-  A["① Pull<br/>git pull"] --> B["② Write/Paste<br/>tasks/bunhieng/"]
-  B --> C["③ Copy file<br/>→ frontend/src/"]
-  C --> D["④ Test<br/>npm run dev"]
-  D --> E["⑤ Build<br/>npm run build"]
-  E --> F["⑥ Push<br/>git push"]
-```
-
-### រូប paste file — សរសេរទីនេះមុន → copy ទៅ app
-
-```mermaid
-flowchart LR
-  subgraph STEP2["② សរសេរ / paste ទីនេះមុន"]
-    T1["tasks/bunhieng/components/"]
-    T2["tasks/bunhieng/services/core/"]
-    T3["tasks/bunhieng/lib/ + hooks/"]
-  end
-
-  subgraph APP["③ copy paste → app រួម"]
-    F1["frontend/src/components/"]
-    F2["frontend/src/services/core/"]
-    F3["frontend/src/lib/ + hooks/"]
-  end
-
-  T1 --> F1
-  T2 --> F2
-  T3 --> F3
-```
-
-> path ដូចគ្នា — `tasks/bunhieng/components/ui/button.jsx` → `frontend/src/components/ui/button.jsx`
+Layout, nav, filters, locale, shared components។
 
 ---
 
-## ① Pull — យក code ថ្មី
-
-ធ្វើ **រៀងរាល់ព្រឹក** មុនចាប់ធ្វើ
+## ①–⑤ មុន push
 
 ```powershell
 cd "d:\Full Frontend"
 git pull origin main
-cd frontend
-npm install
+.\scripts\paste-task.ps1 -Member bunhieng
+cd frontend; npm run dev; npm run build; cd ..
 ```
 
 ---
 
-## ② កែ code — write / paste file
+## ⑥ Push
 
-កែ file ក្នុង **`tasks/bunhieng/`** តែប៉ុណ្ណោះ
+**របៀប:** `git add` → `git commit` → `git push` — **មួយ folder មួយដង**។ រួចហើយធ្វើ folder បន្ទាប់។
 
-| Folder | ធ្វើអី |
-|--------|--------|
-| `components/ui/` | shadcn buttons, inputs, … |
-| `components/layout/` | MainLayout, ProtectedRoute |
-| `components/common/` | UI រួម (គ្រប់ role) |
-| `services/core/` | `api.js`, `endpoints.js` |
-| `lib/`, `hooks/` | utils, locale, hooks |
-
-ឧទាហរណ៍: `tasks/bunhieng/services/core/endpoints.js`
-
-> **កុំ** ដាក់ `pages/student`, `pages/mentor` ក្នុង folder នេះ
-
----
-
-## ③ Copy — paste file ទៅ app រួម
-
-**Copy file ដែលកែ** ពី `tasks/bunhieng/` → `frontend/src/` (**path ដូចគ្នា**)
-
-```
-tasks/bunhieng/services/core/endpoints.js
-        ↓ copy paste
-frontend/src/services/core/endpoints.js
-```
-
-- **Ctrl+C** file ក្នុង `tasks/bunhieng/...`
-- **Ctrl+V** ទៅ `frontend/src/...` (folder ដូចគ្នា)
-- ឬ drag & drop ក្នុង File Explorer
-
----
-
-## ④ Test — រត់ app
-
-**Terminal 1** — backend
+**កុំ** `git add` file **README** (រួម `tasks/bunhieng/README.md`)។
 
 ```powershell
-cd backend_rokkru
-npm start
+# 1 — tasks (កុំ README)
+git add tasks/bunhieng/App.jsx tasks/bunhieng/index.css
+git add tasks/bunhieng/components/ tasks/bunhieng/constants/
+git add tasks/bunhieng/lib/ tasks/bunhieng/pages/ tasks/bunhieng/services/
+git commit -m "feat(bunhieng): shared task folder filters layout colors"
+git push origin main
+
+# 2 — layout + nav
+git add frontend/src/components/layout/
+git commit -m "feat(bunhieng): main layout auth layout settings menu"
+git push origin main
+
+# 3 — common components (លុប animation background រួមផង)
+git add frontend/src/components/common/SearchFilter.jsx
+git add frontend/src/components/common/CommunityPostCard.jsx
+git add frontend/src/components/index.js
+git add -u frontend/src/components/
+git commit -m "feat(bunhieng): search filter post card remove animation background"
+git push origin main
+
+# 4 — constants + filters
+git add frontend/src/constants/filters/
+git add frontend/src/constants/config/
+git add frontend/src/constants/ui/
+git add frontend/src/constants/index.js
+git add -u frontend/src/constants/
+git commit -m "feat(bunhieng): mentor filters platformFeatures tokens"
+git push origin main
+
+# 5 — primary color
+git add frontend/tailwind.config.js
+git add frontend/src/index.css
+git commit -m "feat(bunhieng): primary color blue"
+git push origin main
+
+# 6 — App routes + pages + locale + landing
+git add frontend/src/App.jsx
+git add frontend/src/pages/NotFound.jsx
+git add frontend/src/pages/legal/
+git add frontend/src/pages/auth/Landing.jsx
+git add frontend/src/lib/localeEn.js
+git add frontend/src/lib/localeKm.js
+git commit -m "feat(bunhieng): app routes locale legal landing"
+git push origin main
 ```
 
-**Terminal 2** — frontend
-
-```powershell
-cd frontend
-npm run dev
-```
-
-បើក `http://localhost:5173` → ពិនិត្យ layout, API, shared components
-
----
-
-## ⑤ Build — ពិនិត្យ error
-
-```powershell
-cd frontend
-npm run build
-```
-
----
-
-## ⑥ Push — ផ្ញើ GitLab
-
-```powershell
-cd "d:\Full Frontend"
-git add tasks/bunhieng/
-git status
-git commit -m "feat(bunhieng): ..."
-git push
-```
-
-**កុំ commit:** `node_modules/`, `.env`, `dist/`, folder member ផ្សេង
-
----
-
-## Lead only — sync ទៅ team
-
-Copy file ពី `frontend/src/` → `tasks/bunhieng/` (path ដូចគ្នា) ដើម្បី update slice របស់ team។
-
----
-
-## អានបន្ថែម
-
-**Task ត្រូវធ្វើ**
-
-- [ ] `endpoints.js` sync ជាមួយ backend
-- [ ] `apiRequest` — cookies, 401, upload
-- [ ] Layout: MainLayout, ProtectedRoute
-
-**ឯកសារពេញ:** [`../../frontend/docs/TEAM_TASKS.md`](../../frontend/docs/TEAM_TASKS.md)
+[`../README.md`](../README.md)

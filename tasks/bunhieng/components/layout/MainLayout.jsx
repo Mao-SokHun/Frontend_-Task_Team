@@ -27,6 +27,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher'
 import { useTranslation } from '@/i18n'
 import { contentFontClass } from '@/utils/khmerTextUtils'
 import ProfileCompletionGate from '../common/ProfileCompletionGate'
+import { isBookingsEnabled } from '@/constants/config/platformFeatures'
 
 
 
@@ -85,7 +86,9 @@ const studentSideNav = [
 
   { icon: Bell,     labelKey: 'nav.notifications', href: '/notifications' },
 
-  { icon: Calendar, labelKey: 'nav.myBookings',    href: '/student/bookings' },
+  ...(isBookingsEnabled()
+    ? [{ icon: Calendar, labelKey: 'nav.myBookings', href: '/student/bookings' }]
+    : []),
 
   { icon: Settings, labelKey: 'nav.profile',       href: '/profile' },
 
@@ -594,6 +597,7 @@ const MainLayout = ({ children }) => {
 
                   </Link>
 
+                  {isBookingsEnabled() ? (
                   <Link
 
                     to="/student/bookings"
@@ -607,6 +611,7 @@ const MainLayout = ({ children }) => {
                     <Calendar className="w-4 h-4 text-slate-400" /> {t('nav.myBookings')}
 
                   </Link>
+                  ) : null}
 
                   <Link
 

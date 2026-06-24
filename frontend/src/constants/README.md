@@ -1,65 +1,40 @@
 # Constants (`@/constants`)
 
-Domain-organized app constants (no mock data folder).
+App configuration and UI labels — **not** database catalog data.
 
 ```
 constants/
   config/       env (API URL)
   ui/           tokens, typography
-  filters/      teacher filters, subjects
-  teacher/      empty profile defaults, gender options
-  communities/  UI tabs/categories; lists filled via API
-  legal/        privacy/terms/help copy
-  backgrounds/  mesh/polygon presets
+  filters/      FILTER_ALL, sort/time labels (catalog from API)
+  student/      empty profile shape, learning-focus labels
+  mentor/       empty mentor profile defaults
+  communities/  gradients, feed tab fallback (types from API)
+  legal/        admin CMS seed copy (editable in admin)
 ```
 
-Import from barrel: `import { FILTER_ALL, isApiEnabled } from '@/constants'`
+## Rules
 
-## Skills & subjects — use the database, not mock lists
+| Source | Use for |
+|--------|---------|
+| **API / database** | Majors, subjects, provinces, community posts, mentors, profiles |
+| **constants** | `FILTER_ALL`, sort labels, routes, empty form shapes, UI tokens |
+| **contexts** | Share UI state across components |
 
-**Major (skill) and subject (sub_skill) options already live in the database.** Do not add or maintain hardcoded skill/subject lists for production UI.
+## Filter catalog
 
-| DB table     | UI label   | Columns |
-|--------------|------------|---------|
-| `skill`      | Major      | `skill_name` (English), `skill_name_kh` (Khmer) |
-| `sub_skill`  | Subject    | `sub_skill_name` (English), `sub_skill_name_kh` (Khmer) |
+- `useMentorFilterCatalog()` → `GET /v1/mentors/catalog`
+- Do **not** add `majorOptions`, `majors.json`, or `majorSubjects.js` (removed)
 
-Browse filters use **skill_id / sub_skill_id** as dropdown values (not free text) so EN/KH labels stay consistent.
+## Community
 
-### Provinces (`province` table)
+- Feed tabs built from `fetchCommunityTypes()` when API loads
+- `COMMUNITY_FEED_TABS` is only `['ALL POSTS']` until types load
 
-| Column | Language |
-|--------|----------|
-| `province_name` | English (e.g. Takeo) |
-| `province_name_kh` | Khmer (optional — if missing, UI falls back to `province_name`) |
+## Ownership
 
-- **API:** `GET /v1/mentors/catalog` → `fetchMentorCatalog()` / `fetchProvinces()` / `fetchAllSkills()`
-- **Dropdowns:** `buildProvinceOptionObjects(provinces, lang)` — value stays English for save/API; label uses `province_name` or `province_name_kh` from DB
-- Do **not** extend static `locationOptions` in `mentorFilters.js` for new provinces
-- Do **not** add provinces to `kmOptionLabels.js` — Khmer comes from `province_name_kh`
-
-### API (source of truth)
-
-| Purpose | Endpoint | Service |
-|---------|----------|---------|
-| Full skill tree (majors + subjects) | `GET /v1/mentors/catalog` | `fetchMentorCatalog()` / `fetchAllSkills()` |
-| Mentor’s saved skills | `GET /v1/mentors/:userId/skills` | `fetchMentorSkills(userId)` |
-
-Catalog is a single `GET /v1/mentors/catalog` response (skills nested with `sub_skill`, plus provinces).
-
-### Frontend usage
-
-- **Browse filters** — `useMentorFilterCatalog()` → `skillsCatalog` + `buildMentorFilterOptionSet()`
-- **Dropdowns** (edit profile, onboarding, create post) — `buildSkillOptions(catalog, lang)`, `buildSubSkillOptions(catalog, skillId, lang)`
-- **Display on cards/profiles** — `skillRowLabel(row, lang)` or `useLocalizedMentor(mentor)` (skill: `skill_name`; sub_skill: `sub_skill_name`)
-- **Filter matching** — keep English `value` for query params; show localized `label` in the UI
-
-### What *not* to do
-
-- Do **not** extend `majorOptions` / `subjectOptions` in `filters/mentorFilters.js` for new majors or subjects.
-- Do **not** add skills to `kmOptionLabels.js` for DB-driven names — Khmer comes from `skill_name_kh` / `sub_skill_name_kh`.
-- Do **not** mock mentor `major` / `subject` / `subjects` on list or profile payloads.
-
-### Static lists in `mentorFilters.js` (legacy only)
-
-`majorOptions` and `subjectOptions` are **offline fallbacks** when `VITE_API_URL` is unset or the API fetch fails. They are not the product catalog. With the API enabled, `useMentorFilterCatalog` replaces them from the DB automatically.
+| Folder | Owner |
+|--------|-------|
+| `constants/filters/mentorFilters.js` | Bunhieng |
+| `constants/student/` | Sophy |
+| `constants/communities/` | Ratanak |

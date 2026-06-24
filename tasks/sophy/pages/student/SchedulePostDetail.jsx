@@ -14,6 +14,7 @@ import Avatar from '@/components/ui/Avatar'
 import { useAuth } from '@/hooks'
 import { useTranslation } from '@/i18n'
 import { isApiEnabled } from '@/constants'
+import { isBookingsEnabled } from '@/constants/config/platformFeatures'
 import { fetchSchedulePostDetail } from '@/services/mentors/mentorService'
 import { mapPostToScheduleDetail } from '@/utils/schedulePostDetailUtils'
 import { contentFontClass } from '@/utils/khmerTextUtils'
@@ -186,7 +187,7 @@ const SchedulePostDetail = () => {
     timeLabel
   )
   const mentorHref = `/mentor/${mentor.id}`
-  const canBook = user?.role === 'student'
+  const canBook = isBookingsEnabled() && user?.role === 'student'
   const scheduleTime = timeDisplay || (!sessionDate ? timeLabel : '')
 
   const metaTiles = [

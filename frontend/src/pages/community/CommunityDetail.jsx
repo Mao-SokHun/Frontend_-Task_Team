@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   Users, MessageSquare, Plus, Bell, BellOff, ChevronLeft, Trophy,
-  Calendar, Hash,
+  Hash,
 } from 'lucide-react'
 import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
@@ -15,12 +15,9 @@ import {
   PageAmbient,
 } from '@/components'
 import { useCommunities } from '@/hooks/useCommunities'
+import { useCommunityFeed } from '@/hooks/useCommunityFeed'
+import { useCommunityPostState } from '@/hooks'
 import clsx from 'clsx'
-
-const posts = []
-const initialComments = {}
-const members = []
-const events = []
 
 const DEFAULT_COMMUNITY = {
   id: '',
@@ -39,6 +36,7 @@ const DEFAULT_COMMUNITY = {
 const CommunityDetail = () => {
   const { id } = useParams()
   const { communities, loading } = useCommunities()
+  const { posts, loading: postsLoading } = useCommunityFeed({ communityTypeId: id, limit: 50 })
   const community = useMemo(() => {
     const found = communities.find((c) => String(c.id) === String(id))
     if (!found) return { ...DEFAULT_COMMUNITY, id: id ?? '' }
@@ -61,10 +59,7 @@ const CommunityDetail = () => {
   const [joined, setJoined] = useState(community.joined)
   const [notified, setNotified] = useState(true)
   const [postText, setPostText] = useState('')
-  const [likedPosts, setLikedPosts] = useState({})
-  const [commentsByPost, setCommentsByPost] = useState(initialComments)
-
-  const toggleLike = (postId) => setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }))
+  const { isLiked, getLikeCount, commentsByPost, toggleLike } = useCommunityPostState()
 
   if (loading) {
     return (
@@ -123,15 +118,18 @@ const CommunityDetail = () => {
               {joined && (
                 <CommunityPostComposer userName="You" value={postText} onChange={setPostText} onPost={() => setPostText('')} />
               )}
-              {posts.length === 0 ? (
+              {postsLoading ? (
+                <p className="text-sm text-slate-500 text-center py-8">Loading posts…</p>
+              ) : posts.length === 0 ? (
                 <p className="text-sm text-slate-500 text-center py-8">No posts in this community yet.</p>
               ) : (
                 posts.map((post) => (
                   <CommunityPostCard
                     key={post.id}
                     post={post}
-                    comments={commentsByPost[post.id] || []}
-                    liked={likedPosts[post.id]}
+                    comments={commentsByPost[String(post.id)] || []}
+                    liked={isLiked(post.id)}
+                    likeCount={getLikeCount(post.id, post.likes)}
                     onLike={() => toggleLike(post.id)}
                     onShare={() => {}}
                     linkTo={false}
@@ -149,39 +147,13 @@ const CommunityDetail = () => {
 
           {tab === 'members' && (
             <PageCard>
-              {members.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-8">No members to display.</p>
-              ) : (
-                <div className="space-y-3">
-                  {members.map((m) => (
-                    <div key={m.name} className="flex items-center gap-3">
-                      <Avatar name={m.name} size="sm" />
-                      <div>
-                        <p className="font-semibold text-sm text-slate-800">{m.name}</p>
-                        <p className="text-xs text-slate-400">{m.role} · {m.tag}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <p className="text-sm text-slate-500 text-center py-8">Members will load from API.</p>
             </PageCard>
           )}
 
           {tab === 'events' && (
             <PageCard>
-              {events.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-8">No upcoming events.</p>
-              ) : (
-                events.map((e) => (
-                  <div key={e.title} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
-                    <Calendar className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-sm text-slate-800">{e.title}</p>
-                      <p className="text-xs text-slate-400">{e.date} · {e.time}</p>
-                    </div>
-                  </div>
-                ))
-              )}
+              <p className="text-sm text-slate-500 text-center py-8">No upcoming events.</p>
             </PageCard>
           )}
         </div>

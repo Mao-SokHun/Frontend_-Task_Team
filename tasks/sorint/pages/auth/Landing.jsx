@@ -3,8 +3,7 @@ import { CheckCircle, ArrowRight } from 'lucide-react'
 import clsx from 'clsx'
 import Button from '../../components/ui/Button'
 import Avatar from '../../components/ui/Avatar'
-import { PublicNavbar, AppFooter, MentorRowCard, AnimatedBackground } from '@/components'
-import { LANDING_SECTION_BG_ANIMATION_ENABLED } from '@/constants'
+import { PublicNavbar, AppFooter, MentorRowCard } from '@/components'
 import { useTranslation } from '@/i18n'
 import { useMentors } from '@/hooks'
 
@@ -24,7 +23,6 @@ const Landing = () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-sky-500/15 rounded-full blur-3xl" />
-          <AnimatedBackground variant="landing" intensity="normal" style="both" className="absolute inset-0" />
         </div>
 
         <div
@@ -110,15 +108,8 @@ const Landing = () => {
 
       <section
         id="mentors"
-        className={clsx(
-          'relative py-20 overflow-hidden',
-          !LANDING_SECTION_BG_ANIMATION_ENABLED &&
-            'bg-gradient-to-br from-primary-50/90 via-white to-primary-100/80'
-        )}
+        className="relative py-20 overflow-hidden bg-gradient-to-br from-primary-50/90 via-white to-primary-100/80"
       >
-        {LANDING_SECTION_BG_ANIMATION_ENABLED && (
-          <AnimatedBackground variant="community" intensity="soft" style="both" className="absolute inset-0" />
-        )}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
             <div>
@@ -151,9 +142,6 @@ const Landing = () => {
       </section>
 
       <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600 text-white">
-        {LANDING_SECTION_BG_ANIMATION_ENABLED && (
-          <AnimatedBackground variant="cta" intensity="soft" style="both" className="absolute inset-0" />
-        )}
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <h2 className={clsx('font-extrabold mb-4', isKhmer ? 'text-4xl sm:text-5xl' : 'text-4xl')}>
             {t('landing.ctaTitle')}

@@ -4,6 +4,8 @@ import {
   communityTypeRowToUi,
   communityPostRowToUi,
   communityPostToApiPayload,
+  communityCommentRowToUi,
+  flattenCommunityComments,
   unwrapCommunityPosts,
   unwrapCommunityTypes,
 } from '@/lib/communityApiMap'
@@ -115,13 +117,64 @@ export async function fetchMyCommunityPosts(params = {}) {
   if (params.page) qs.set('page', String(params.page))
   if (params.limit) qs.set('limit', String(params.limit))
   const query = qs.toString()
-  const json = await apiRequest(
-    `${ENDPOINTS.students.community.myPosts}${query ? `?${query}` : ''}`
-  )
   return unwrapCommunityPosts(json).map(communityPostRowToUi)
 }
 
-/** @deprecated Backend has no POST /communities — use createCommunityPost */
-export async function createCommunity() {
-  return null
+/** GET /v1/community/posts/:id/like — public like/dislike counts */
+export async function fetchCommunityPostLikes(postId) {
+  if (!postId || !isApiEnabled()) {
+    return { likes_count: 0, dislikes_count: 0 }
+  }
+  const json = await apiRequest(ENDPOINTS.community.postLikes(postId), {
+    auth: false,
+    skipAuthRedirect: true,
+  })
+  const data = json?.data ?? json
+  return {
+    likes_count: Number(data?.likes_count ?? 0),
+    dislikes_count: Number(data?.dislikes_count ?? 0),
+  }
+}
+
+/** POST /v1/community/posts/:id/like — toggle like (auth required) */
+export async function toggleCommunityPostLike(postId, { is_like = true } = {}) {
+  if (!postId || !isApiEnabled()) {
+    throw new Error('Set VITE_API_URL in .env to like community posts.')
+  }
+  return apiRequest(ENDPOINTS.community.postLikes(postId), {
+    method: 'POST',
+    body: JSON.stringify({ is_like }),
+  })
+}
+
+/** GET /v1/community/posts/:id/comments */
+export async function fetchCommunityPostComments(postId, params = {}) {
+  if (!postId || !isApiEnabled()) return []
+  const qs = new URLSearchParams()
+  if (params.page) qs.set('page', String(params.page))
+  if (params.limit) qs.set('limit', String(params.limit ?? 50))
+  const query = qs.toString()
+  const json = await apiRequest(
+    `${ENDPOINTS.community.postComments(postId)}${query ? `?${query}` : ''}`,
+    { auth: false, skipAuthRedirect: true }
+  )
+  const data = json?.data ?? json
+  const rows = Array.isArray(data?.comments) ? data.comments : []
+  return flattenCommunityComments(rows)
+}
+
+/** POST /v1/community/posts/:id/comments */
+export async function createCommunityPostComment(postId, content, parentCommentId = null) {
+  if (!postId || !isApiEnabled()) {
+    throw new Error('Set VITE_API_URL in .env to comment on community posts.')
+  }
+  const body = { content: String(content ?? '').trim() }
+  if (parentCommentId != null) body.parent_comment_id = parentCommentId
+  const json = await apiRequest(ENDPOINTS.community.postComments(postId), {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+  const data = json?.data ?? json
+  const row = data?.comment ?? data
+  return row ? communityCommentRowToUi(row) : null
 }

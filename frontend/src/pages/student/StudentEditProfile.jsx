@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Camera, Mail, Phone, BookOpen, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks'
@@ -11,6 +11,7 @@ import SearchableSelect from '../../components/ui/SearchableSelect'
 import clsx from 'clsx'
 import { useTranslation, localizeOptionList } from '@/i18n'
 import { isApiEnabled } from '@/constants'
+import { fetchMentorCatalog } from '@/services/mentors/mentorService'
 import { deleteAccountWithPassword } from '@/services/auth/authService'
 import { fetchProvinces } from '@/services/mentors/mentorService'
 import { buildProvinceOptionObjects, resolveProvinceCanonicalName } from '@/utils/provinceOptions'
@@ -20,19 +21,6 @@ import {
   fetchMyStudentProfile,
 } from '@/services/students/studentProfileService'
 import { getPhoneDigits, sanitizePhoneInput } from '@/utils/phoneInput'
-
-const subjectOptions = [
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'English',
-  'Data Science',
-  'Programming',
-  'History',
-  'Economics',
-]
-const learningFocusAreas = ['IT', 'Language', 'Accounting', 'General Knowledge']
 
 const fieldLabelClass = 'block text-xs font-medium text-slate-500 mb-1.5'
 const fieldInputClass =
@@ -63,18 +51,47 @@ const StudentEditProfile = () => {
   const [deleteError, setDeleteError] = useState('')
   const [deletingAccount, setDeletingAccount] = useState(false)
   const [provinceRows, setProvinceRows] = useState([])
+  const [interestOptions, setInterestOptions] = useState([])
+  const [learningFocusOptions, setLearningFocusOptions] = useState([])
   const photoInputRef = useRef(null)
 
   const displayName =
     `${firstName} ${lastName}`.trim() || defaults.displayName || t('auth.student')
 
-  const learningFocusOptions = localizeOptionList(learningFocusAreas, labelFor)
+  const learningFocusSelectOptions = useMemo(
+    () => localizeOptionList(learningFocusOptions, labelFor),
+    [learningFocusOptions, labelFor]
+  )
   const provinceOptions = useMemo(() => {
     if (provinceRows.length) {
       return buildProvinceOptionObjects(provinceRows, lang)
     }
     return []
   }, [provinceRows, lang])
+
+  useEffect(() => {
+    if (!isApiEnabled()) return
+    let cancelled = false
+    fetchMentorCatalog()
+      .then(({ skills }) => {
+        if (cancelled) return
+        const names = (skills ?? [])
+          .map((row) => String(row.skill_name ?? row.name ?? '').trim())
+          .filter(Boolean)
+        const unique = [...new Set(names)]
+        setInterestOptions(unique)
+        setLearningFocusOptions(unique)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInterestOptions([])
+          setLearningFocusOptions([])
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (!isApiEnabled()) return
@@ -320,7 +337,7 @@ const StudentEditProfile = () => {
                   labelClassName="block text-xs font-medium text-slate-500 mb-1.5"
                   value={learningFocus}
                   onChange={setLearningFocus}
-                  options={learningFocusOptions}
+                  options={learningFocusSelectOptions}
                   placement="bottom"
                   className="bg-slate-50"
                 />
@@ -431,22 +448,28 @@ const StudentEditProfile = () => {
               <h3 className="font-bold text-slate-800 mb-1">{t('profile.learningPreferences')}</h3>
               <p className="text-xs text-slate-400 mb-4">{t('profile.learningPreferencesHint')}</p>
               <div className="flex flex-wrap gap-2">
-                {subjectOptions.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => toggleSubject(s)}
-                    className={clsx(
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all',
-                      selectedSubjects.includes(s)
-                        ? 'bg-primary-500 text-white border-primary-400 shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-primary-200 hover:text-primary-600'
-                    )}
-                  >
-                    <BookOpen className="w-3 h-3" />
-                    {labelFor(s)}
-                  </button>
-                ))}
+                {interestOptions.length === 0 ? (
+                  <p className="text-xs text-slate-400">
+                    {isApiEnabled() ? t('common.loading') : 'Enable API to load interest options.'}
+                  </p>
+                ) : (
+                  interestOptions.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleSubject(s)}
+                      className={clsx(
+                        'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all',
+                        selectedSubjects.includes(s)
+                          ? 'bg-primary-500 text-white border-primary-400 shadow-sm'
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-primary-200 hover:text-primary-600'
+                      )}
+                    >
+                      <BookOpen className="w-3 h-3" />
+                      {labelFor(s)}
+                    </button>
+                  ))
+                )}
               </div>
             </PageCard>
 

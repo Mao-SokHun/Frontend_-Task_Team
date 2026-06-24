@@ -5,16 +5,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          50:  '#fdf6f7',
-          100: '#faeef0',
-          200: '#f3d9dd',
-          300: '#e8bcc3',
-          400: '#d495a1',
-          500: '#c07888',
-          600: '#a86674',
-          700: '#8f5562',
-          800: '#754650',
-          900: '#5f3a42',
+          50:  '#eef3fa',
+          100: '#d6e3f3',
+          200: '#adc7e7',
+          300: '#7aa3d4',
+          400: '#3b6ebb',
+          500: '#2255aa',
+          600: '#1b4488',
+          700: '#16366d',
+          800: '#112a56',
+          900: '#0d2145',
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
@@ -78,7 +78,7 @@ export default {
       },
       boxShadow: {
         soft: '0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04)',
-        glow: '0 0 20px rgba(192, 120, 136, 0.12)',
+        glow: '0 0 20px rgba(34, 85, 170, 0.12)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

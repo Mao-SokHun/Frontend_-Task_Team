@@ -22,7 +22,7 @@ import {
   resolveMentorExportIdentity,
 } from '@/utils/analyticsExportUtils'
 
-const PRIMARY = '#c07888'
+const PRIMARY = '#2255aa'
 
 const STATUS_STYLES = {
   Active: 'bg-emerald-50 text-emerald-700',

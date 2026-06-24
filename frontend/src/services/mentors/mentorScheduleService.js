@@ -28,24 +28,12 @@ export async function saveTeacherWeeklySchedule(slots) {
   return normalized
 }
 
-/**
- * Offline/demo publish — when API disabled.
- * With API enabled, MentorCreatePost uses createMentorPost directly.
- */
-export async function publishTeacherSessionSlot({ userId, subject, date, time, notes }) {
-  const payload = {
-    mentor_id: userId,
-    subject: subject?.trim(),
-    session_date: date,
-    time_slot: time,
-    notes: notes?.trim() || '',
-  }
-
+/** @deprecated MentorCreatePost uses createMentorPost when API is enabled */
+export async function publishTeacherSessionSlot() {
   if (!isApiEnabled()) {
-    return { ok: true, local: true, ...payload }
+    throw new Error('Set VITE_API_URL to publish sessions.')
   }
-
-  return { ok: true, local: true, ...payload }
+  throw new Error('Use createMentorPost — publishTeacherSessionSlot is deprecated.')
 }
 
 /** Mentor schedule posts — GET /v1/mentors/me/posts */

@@ -11,4 +11,11 @@ export {
   getBookingById,
 } from './studentBookingService'
 
-export { submitSessionReview } from './studentReviewService'
+export {
+  submitSessionReview,
+  submitMentorRating,
+  fetchMentorRatings,
+  fetchMentorRatingSummary,
+  fetchMyMentorRating,
+  createMentorRating,
+} from './studentReviewService'

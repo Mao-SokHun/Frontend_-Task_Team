@@ -1,5 +1,5 @@
-import { Users, User, CreditCard, Settings, HelpCircle, CalendarCheck } from 'lucide-react'
-import { STUDENT_ROUTES } from '@/constants/student/studentRoutes'
+import { Users, User, CreditCard, Settings, HelpCircle } from 'lucide-react'
+import { isBookingsEnabled } from '@/constants/config/platformFeatures'
 
 /** Shared settings dropdown menus — student / mentor / admin */
 export const SETTINGS_MENUS = {
@@ -8,7 +8,9 @@ export const SETTINGS_MENUS = {
     subtitleKey: 'settings.studentSubtitle',
     items: [
       { labelKey: 'settings.myProfile', href: '/profile', icon: Users },
-      { labelKey: 'settings.myBookings', href: STUDENT_ROUTES.bookings, icon: CalendarCheck },
+      ...(isBookingsEnabled()
+        ? [{ labelKey: 'settings.myBookings', href: '/student/bookings', icon: Users }]
+        : []),
       { labelKey: 'settings.editProfile', href: '/student/edit-profile', icon: User },
     ],
   },

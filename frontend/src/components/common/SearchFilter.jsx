@@ -4,7 +4,6 @@ import clsx from 'clsx'
 import FilterBar from './FilterBar'
 import Button from '@/components/ui/Button'
 import { FILTER_ALL } from '@/constants'
-import { getSubjectFilterOptions } from '@/constants'
 import { getSubjectFilterOptionObjects } from '@/utils/mentorFilterOptions'
 import { useTranslation } from '@/i18n'
 import { localizeOptionList, useLocalizedFilterOptions } from '@/lib/localizeOptions'
@@ -36,14 +35,10 @@ const SearchFilter = ({
   const majorIsAll = filters.major === FILTER_ALL.major
 
   const subjectOptions = useMemo(() => {
-    if (useDbCatalog) {
-      return localizeOptionList(
-        getSubjectFilterOptionObjects(skillsCatalog, filters.major, lang),
-        labelFor
-      )
-    }
-    const values = getSubjectFilterOptions(filters.major)
-    return localizeOptionList(values, labelFor)
+    const objects = useDbCatalog
+      ? getSubjectFilterOptionObjects(skillsCatalog, filters.major, lang)
+      : [{ value: FILTER_ALL.subject, label: FILTER_ALL.subject }]
+    return localizeOptionList(objects, labelFor)
   }, [filters.major, labelFor, skillsCatalog, useDbCatalog, lang])
 
   const searchableField = (field) => ({

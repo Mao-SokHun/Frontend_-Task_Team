@@ -1,3 +1,5 @@
+/** Community UI tokens — feed/types/posts come from API */
+
 export const COMMUNITY_GRADIENTS = [
   'from-primary-200 to-primary-400 text-primary-800',
   'from-sky-200 to-sky-400 text-sky-900',
@@ -18,41 +20,8 @@ export const COMMUNITY_CARD_GRADIENTS = [
   'from-rose-400 to-rose-600',
 ]
 
-export const COMMUNITY_CATEGORIES = [
-  'Technology',
-  'Business',
-  'STEM',
-  'Language',
-  'Engineering',
-  'Design',
-  'Education',
-  'Other',
-]
-
-export const COMMUNITY_FEED_TABS = [
-  'ALL POSTS',
-  ...COMMUNITY_CATEGORIES.map((c) => c.toUpperCase()),
-]
-
-/** Populated via GET /communities when API is enabled */
-export const allCommunities = []
-export const majorCommunities = []
-export const subjectCommunities = []
-export const featuredCommunities = []
-export const browseCommunities = []
-export const communities = []
-
-export const COMMUNITY_FEED_POSTS = []
-
-export const COMMUNITY_INITIAL_COMMENTS = {}
-
-export function findCommunityById(id) {
-  return allCommunities.find((c) => c.id === id) ?? null
-}
-
-export function findCommunityPost() {
-  return null
-}
+/** Fallback feed tab when API types are not loaded yet */
+export const COMMUNITY_FEED_TABS = ['ALL POSTS']
 
 export function filterCommunities(list, query) {
   const q = query?.trim().toLowerCase()

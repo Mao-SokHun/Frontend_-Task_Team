@@ -5,6 +5,7 @@ import Avatar from '../../components/ui/Avatar'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import clsx from 'clsx'
+import { useTranslation } from '@/i18n'
 import StandalonePageShell from '../../components/layout/StandalonePageShell'
 import { getBookingById } from '@/services/students/studentBookingService'
 import { submitSessionReview } from '@/services/students/studentReviewService'
@@ -26,6 +27,7 @@ const tags = {
 const quickReviews = []
 
 const SessionReview = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { sessionId } = useParams()
   const booking = useMemo(() => getBookingById(sessionId), [sessionId])
@@ -48,7 +50,7 @@ const SessionReview = () => {
 
   const toggleTag = (tag) => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
 
-  const canSubmit = overall > 0 && reviewText.length >= 20
+  const canSubmit = overall > 0
 
   const submit = async () => {
     if (!canSubmit || !sessionId) return
@@ -139,6 +141,7 @@ const SessionReview = () => {
           <div>
             <h1 className="text-xl font-black text-slate-800 mb-0.5">Rate your session</h1>
             <p className="text-slate-400 text-sm">Your honest feedback helps teachers improve and helps other students.</p>
+            <p className="text-xs text-slate-400 mt-1">{t('mentorDetail.starRatingOnlyNote')}</p>
           </div>
 
           {/* Overall rating */}
@@ -205,7 +208,7 @@ const SessionReview = () => {
           {/* Written review */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="font-semibold text-slate-700">Written review <span className="text-red-400">*</span></p>
+              <p className="font-semibold text-slate-700">Written review <span className="text-slate-400 font-normal">(optional)</span></p>
               <span className="text-xs text-slate-400">{reviewText.length}/500</span>
             </div>
             <div className="flex gap-2 mb-2 overflow-x-auto pb-1">

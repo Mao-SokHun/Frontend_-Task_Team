@@ -1,31 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Heart, MessageSquare, Share2 } from 'lucide-react'
-import { useAuth } from '@/hooks'
 import { useCommunityPostState } from '@/hooks'
-import { findCommunityPost } from '@/constants'
+import { isApiEnabled } from '@/constants'
+import { fetchCommunityPostById } from '@/services/communities/communityService'
 import Avatar from '@/components/ui/Avatar'
 import Badge from '@/components/ui/Badge'
 import { CommunityPostComments } from '@/components'
 import { PageAmbient } from '@/components'
+import { useTranslation } from '@/i18n'
 import clsx from 'clsx'
 
 const CommunityPostDetail = () => {
   const { postId } = useParams()
-  const { user } = useAuth()
-  const post = findCommunityPost(postId)
-  const { likedIds, commentsByPost, toggleLike, addComment } = useCommunityPostState()
+  const { t } = useTranslation()
+  const [post, setPost] = useState(null)
+  const [loading, setLoading] = useState(isApiEnabled())
+  const {
+    isLiked,
+    getLikeCount,
+    commentsByPost,
+    toggleLike,
+    addComment,
+    engagementLoading,
+    engagementError,
+  } = useCommunityPostState(postId)
   const [commentDraft, setCommentDraft] = useState('')
+  const [commentSubmitting, setCommentSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!postId || !isApiEnabled()) {
+      setPost(null)
+      setLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setLoading(true)
+
+    fetchCommunityPostById(postId)
+      .then((row) => {
+        if (!cancelled) setPost(row)
+      })
+      .catch(() => {
+        if (!cancelled) setPost(null)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [postId])
+
+  if (loading) {
+    return (
+      <PageAmbient variant="community">
+        <p className="text-sm text-slate-500 text-center py-16">{t('common.loading')}</p>
+      </PageAmbient>
+    )
+  }
 
   if (!post) return <Navigate to="/community" replace />
 
-  const liked = likedIds.includes(post.id)
-  const comments = commentsByPost[post.id] || []
-  const body = post.fullContent || post.content
+  const liked = isLiked(post.id)
+  const comments = commentsByPost[String(post.id)] || []
+  const likeCount = getLikeCount(post.id, post.likes)
+  const body = post.body || post.preview || post.content || ''
 
-  const handleAddComment = (text) => {
-    addComment(post.id, text, user?.name || 'Student')
-    setCommentDraft('')
+  const handleAddComment = async (text) => {
+    setCommentSubmitting(true)
+    try {
+      await addComment(post.id, text)
+      setCommentDraft('')
+    } catch {
+      /* engagementError shown below */
+    } finally {
+      setCommentSubmitting(false)
+    }
   }
 
   return (
@@ -59,6 +112,9 @@ const CommunityPostDetail = () => {
                 </div>
                 <span className="text-xs text-slate-400 flex-shrink-0">{post.time}</span>
               </div>
+              {post.title ? (
+                <h1 className="text-lg font-bold text-slate-800 mt-3">{post.title}</h1>
+              ) : null}
               <p className="text-sm sm:text-base text-slate-700 mt-4 leading-relaxed whitespace-pre-line">
                 {body}
               </p>
@@ -76,11 +132,11 @@ const CommunityPostDetail = () => {
             )}
           >
             <Heart className={clsx('w-4 h-4', liked && 'fill-primary-500')} />
-            {post.likes + (liked ? 1 : 0)}
+            {likeCount}
           </button>
           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
             <MessageSquare className="w-4 h-4" />
-            {comments.length}
+            {comments.length || post.comments || 0}
           </span>
           <button
             type="button"
@@ -90,6 +146,15 @@ const CommunityPostDetail = () => {
           </button>
         </div>
 
+        {engagementLoading ? (
+          <p className="text-xs text-slate-500 text-center py-3">{t('common.loading')}</p>
+        ) : null}
+        {engagementError ? (
+          <p className="text-xs text-red-500 text-center py-2 px-4">
+            {engagementError?.message || t('communityFeed.commentError')}
+          </p>
+        ) : null}
+
         <CommunityPostComments
           comments={comments}
           draft={commentDraft}
@@ -97,6 +162,9 @@ const CommunityPostDetail = () => {
           onSubmit={handleAddComment}
           autoFocus={false}
         />
+        {commentSubmitting ? (
+          <p className="text-xs text-slate-400 text-center pb-2">{t('communityFeed.postingComment')}</p>
+        ) : null}
       </article>
     </PageAmbient>
   )
